@@ -1,0 +1,13 @@
+#list {
+    float: left;
+}
+
+#map {
+    float: right;
+}
+
+#menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
