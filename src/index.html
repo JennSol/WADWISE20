@@ -5,50 +5,56 @@
   <meta charset="UTF-8">
   <title>Title</title>
   <link rel="stylesheet" href="css/styles.css">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+
 </head>
 
 <body>
-  <div id="topmenu">
-    <div id="menu">
-      <button id="button_showmine" class="button">
-        <span>
-          Show mine
-        </span>
-      </button>
-      <button id="button_showall" class="button">
-        <span>
-          Show All
-        </span>
-      </button>
-      <button id="button_addnew" class="button">
-        <span>
-          Add new
-        </span>
-      </button>
+  <div id="admin_view">
+    <div id="topmenu">
+      <div id="menu">
+        <button id="button_showmine" class="button">
+          <span>
+            Show mine
+          </span>
+        </button>
+        <button id="button_showall" class="button">
+          <span>
+            Show All
+          </span>
+        </button>
+        <button id="button_addnew" class="button">
+          <span>
+            Add new
+          </span>
+        </button>
+      </div>
+
+      <div id="list">
+        <ul>
+          <li>Anne</li>
+          <li>Bob</li>
+          <li>Carl</li>
+          <li>Emil</li>
+          <li>Fyn</li>
+          <li>Gina</li>
+          <li>Herta</li>
+        </ul>
+      </div>
+
+      <div id="map">
+      </div>
     </div>
-
-    <div id="list">
-      <ul>
-        <li>Anne</li>
-        <li>Bob</li>
-        <li>Carl</li>
-        <li>Emil</li>
-        <li>Fyn</li>
-        <li>Gina</li>
-        <li>Herta</li>
-      </ul>
-    </div>
-
-    <div id="map">
-      <iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-        src="https://www.openstreetmap.org/export/embed.html?bbox=13.526144027709963%2C52.45694020703389%2C13.527399301528932%2C52.45754248821519&amp;layer=hot"
-        style="border: 1px solid black"></iframe><br /><small><a
-          href="https://www.openstreetmap.org/#map=20/52.45724/13.52677&amp;layers=H">Größere Karte anzeigen</a></small>
-    </div>
-
-
-
   </div>
+
+  <script type="text/javascript" src="js/app.js"></script>
+
 </body>
 
 </html>
