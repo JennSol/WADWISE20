@@ -97,6 +97,7 @@ body
   li a:hover {
     font-size: 30px;
     background: #76B900;
+    color: white;
     border-radius: var(--border-radius);
   }
   
