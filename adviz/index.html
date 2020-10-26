@@ -79,9 +79,66 @@
       </div>
     </div>
   </section>
-
+  <section id="addnew_dialog">
+    <form id="form_addnew_dialog">
+      <div id="id_div_addnew_title">
+        <label for="title">Titel:</label>
+        <input type="text" id="title" name="title">
+      </div>
+      <div id="id_div_addnew_gender">
+        <label for="genders">Geschlecht:</label>
+        <select id="genders" name="genders">
+          <option value="none">keine Angabe</option>
+          <option value="diverse">d</option>
+          <option value="male">m</option>
+          <option value="female">f</option>
+        </select>
+      </div>
+      <div id="id_div_addnew_prename">
+        <label for="prename">Vorname</label>
+        <input type="text" id="prename" name="prename" required>
+      </div>
+      <div id="id_div_addnew_name">
+        <label for="name">Nachname</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div id="id_div_address">
+        <div>
+          <label for="street">Straße</label>
+          <input type="text" id="street" name="street" required>
+        </div>
+        <div>
+          <label for="house">Hausnummer</label>
+          <input type="text" id="house" name="number" required>
+        </div>
+      </div>
+      <div id="id_div_addnew_postcode">
+        <label for="postcode">Postleitzahl</label>
+        <input type="text" id="postcode" name="postcode" required>
+      </div>
+      <div id="id_div_addnew_city">
+        <label for="city">Stadt</label>
+        <input type="text" id="city" name="city" required>
+      </div>
+      <div id="id_div_addnew_country">
+        <label for="country">Land</label>
+        <input type="text" id="county" name="country" required>
+      </div>
+      <div id="id_div_addnew_email">
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email">
+      </div>
+      <div id="id_div_addnew_other">
+        <label for="other">Sonstiges</label>
+        <input type="text" id="other" name="other">
+      </div>
+      <div id="id_div_addnew_private">
+        <label for="email">Privat</label>
+        <input type="checkbox" id="email" name="email" checked>
+      </div>
+      <input type="submit" value="Hinzufügen">
+    </form>
+  </section>
   <script type="text/javascript" src="js/app.js"></script>
-
 </body>
-
 </html>
