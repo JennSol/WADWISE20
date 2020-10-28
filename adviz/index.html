@@ -16,6 +16,17 @@
 </head>
 
 <body>
+  <section id="login_view">
+    <form >
+     <h2>Login</h2>
+      <label for="user_name">Username: </label>
+     <input type="text" id="user_name" name="user_name" required>
+      <label for="password">Passwort: </label>
+      <input type="password" id="password" name="password" required>
+       <button type="button" id="login_button" name="login_button">login</button>
+    </form>
+  </section>
+
   <section id="admin_view">
     <div class="grid-container">
       <div class="header">
@@ -104,7 +115,7 @@
       </div>
       <div id="id_div_address">
         <div>
-          <label for="street">Straße</label>
+          <label for="stre et">Straße</label>
           <input type="text" id="street" name="street" required>
         </div>
         <div>
@@ -141,4 +152,5 @@
   </section>
   <script type="text/javascript" src="js/app.js"></script>
 </body>
+
 </html>
