@@ -147,3 +147,48 @@ div>label {
 	background-color: lightgray;
 	padding: 20px;
 }
+
+
+#login_view{
+	width: 300px;
+	height: auto;
+	padding: 0px 30px;
+	background-color: #FAFAFA;
+	border-radius: 10px;
+	box-shadow: 0 0 10px 0 #000;
+	margin: auto;
+	}
+	
+	#login_view > form{
+	  width: 250px;
+	  text-align: center;
+	  margin-left: auto;
+	  margin-right: auto;
+	}
+	
+	
+	#login_view input{
+	width: 250px;
+	padding: 8px 0px;
+	border-radius: 10px;
+	border: none;
+	background-color: #c7f3c9;
+	margin-bottom: 10px;
+	}
+	
+	#login_view button{
+	 width: 100px;
+	 padding: 8px 0px;
+	border-radius: 10px;
+	margin-bottom: 20px;
+	}
+
+	#login_view h2{
+		padding-top: 10px;
+	}
+
+	#login_view label{
+		font-size: medium;
+	}
+
+
