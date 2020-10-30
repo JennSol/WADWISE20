@@ -12,7 +12,6 @@
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
     integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
     crossorigin=""></script>
-
 </head>
 
 <body>
@@ -26,7 +25,6 @@
       <button type="submit" id="login_button" value="login" name="login_button">login</button>
     </form>
   </section>
-
   <section id="admin_view">
     <div class="grid-container">
       <div class="header">
@@ -150,6 +148,42 @@
       <input type="submit" value="Hinzufügen">
     </form>
   </section>
+  <section class="updateScreen" id="delete_update_screen" >
+    <form>
+      <label for="title">Titel:</label>
+      <input type="text" id="title" name="title">
+      <label for="genders">Geschlecht:</label>
+      <select id="genders" name="genders">
+        <option value="none">keine Angabe</option>
+        <option value="diverse">d</option>
+        <option value="male">m</option>
+        <option value="female">f</option>
+      </select>
+      <label for="prename">Vorname</label>
+      <input type="text" id="prename" name="prename" required>
+      <label for="name">Nachname</label>
+      <input type="text" id="name" name="name" required>
+      <label for="street">Straße</label>
+      <input type="text" id="street" name="street" required>
+      <label for="house">Hausnummer</label>
+      <input type="text" id="house" name="number" required>
+      <label for="postcode">Postleitzahl</label>
+      <input type="text" id="postcode" name="postcode" required>
+      <label for="city">Stadt</label>
+      <input type="text" id="city" name="city" required>
+      <label for="country">Land</label>
+      <input type="text" id="county" name="country" required>
+      <label for="email">Email</label>
+      <input type="text" id="email" name="email">
+      <label for="other">Sonstiges</label>
+      <input type="text" id="other" name="other">
+      <label for="privateBox">Privat</label>
+      <input type="checkbox" id="privateBox" name="privateBox" checked>
+      <button type="submit"id="update_button" value="update" name="update_button">Bearbeiten</button>
+      <button type="submit"id="delete_button" value="delete" name="delete_button">Löschen</button>
+    </form>
+  </section>
   <script type="text/javascript" src="js/app.js"></script>
 </body>
+
 </html>

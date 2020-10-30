@@ -191,4 +191,44 @@ div>label {
 		font-size: medium;
 	}
 
+	.updateScreen form {
+		padding: 1em;
+		background: #f9f9f9;
+		border: 1px solid #c1c1c1;
+		margin-top: 2rem;
+		max-width: 600px;
+		margin-left: auto;
+		margin-right: auto;
+		padding: 1em;
+		overflow: hidden;
+	  }
 
+	.updateScreen button {
+		background: lightgrey;
+		padding: 0.7em;
+		border: 0;
+		float: right;
+		
+	  }
+	  
+	.updateScreen label {
+		text-align: left;
+		display: block;
+		padding: 0.5em 1.5em 0.5em 0;
+	  }
+	  
+	.updateScreen input {
+		width: 100%;
+
+	  }
+
+	.updateScreen button:hover{
+		background: rgb(10, 170, 182);
+	  }
+
+	#privateBox{
+		float: left;
+	}
+
+	
+	 
