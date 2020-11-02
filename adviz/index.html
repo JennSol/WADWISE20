@@ -15,17 +15,17 @@
 </head>
 
 <body>
-  <section id="login_view">
+  <div class="page" id="login_view">
     <form>
       <h2>Login</h2>
-      <label for="user_name">Username: </label>
+      <label for="user_name">Username </label>
       <input type="text" id="user_name" name="user_name" required>
-      <label for="password">Passwort: </label>
+      <label for="password">Passwort </label>
       <input type="password" id="password" name="password" required>
       <button type="submit" id="login_button" value="login" name="login_button">login</button>
     </form>
-  </section>
-  <section id="admin_view">
+  </div>
+  <div class="page" id="admin_view">
     <div class="grid-container">
       <div class="header">
         <div id="menu">
@@ -87,20 +87,20 @@
         Hello, i am a footer
       </div>
     </div>
-  </section>
-  <section id="addnew_dialog">
-    <form id="form_addnew_dialog">
+  </div>
+  <div class="page" id="addnew_dialog">
+    <form class="form_dialog" id="form_addnew_dialog">
       <div id="id_div_addnew_title">
-        <label for="title">Titel:</label>
+        <label for="title">Titel</label>
         <input type="text" id="title" name="title">
       </div>
       <div id="id_div_addnew_gender">
-        <label for="genders">Geschlecht:</label>
+        <label for="genders">Geschlecht</label>
         <select id="genders" name="genders">
           <option value="none">keine Angabe</option>
-          <option value="diverse">d</option>
-          <option value="male">m</option>
-          <option value="female">f</option>
+          <option value="diverse">divers</option>
+          <option value="male">männlich</option>
+          <option value="female">weiblich</option>
         </select>
       </div>
       <div id="id_div_addnew_prename">
@@ -141,23 +141,23 @@
         <label for="other">Sonstiges</label>
         <input type="text" id="other" name="other">
       </div>
-      <div id="id_div_addnew_private">
+      <div class="bar">
         <label for="email">Privat</label>
         <input type="checkbox" id="email" name="email" checked>
+        <button type="submit" class="button" id="add_button" value="add" name="add_button">Hinzufügen</button>
       </div>
-      <input type="submit" value="Hinzufügen">
     </form>
-  </section>
-  <section class="updateScreen" id="delete_update_screen" >
-    <form>
-      <label for="title">Titel:</label>
+  </div>
+  <div class="page" id="delete_update_screen">
+    <form class="form_dialog">
+      <label for="title">Titel</label>
       <input type="text" id="title" name="title">
-      <label for="genders">Geschlecht:</label>
+      <label for="genders">Geschlecht</label>
       <select id="genders" name="genders">
         <option value="none">keine Angabe</option>
-        <option value="diverse">d</option>
-        <option value="male">m</option>
-        <option value="female">f</option>
+        <option value="diverse">divers</option>
+        <option value="male">männlich</option>
+        <option value="female">weiblich</option>
       </select>
       <label for="prename">Vorname</label>
       <input type="text" id="prename" name="prename" required>
@@ -177,12 +177,15 @@
       <input type="text" id="email" name="email">
       <label for="other">Sonstiges</label>
       <input type="text" id="other" name="other">
-      <label for="privateBox">Privat</label>
-      <input type="checkbox" id="privateBox" name="privateBox" checked>
-      <button type="submit"id="update_button" value="update" name="update_button">Bearbeiten</button>
-      <button type="submit"id="delete_button" value="delete" name="delete_button">Löschen</button>
+
+      <div id="bar" class="bar">
+        <label for="privateBox">Privat</label>
+        <input type="checkbox" id="privateBox" name="privateBox" checked>
+        <button type="submit" class="button" id="update_button" value="update" name="update_button">Bearbeiten</button>
+        <button type="submit" class="button" id="delete_button" value="delete" name="delete_button">Löschen</button>
+      </div>
     </form>
-  </section>
+  </div>
   <script type="text/javascript" src="js/app.js"></script>
 </body>
 
