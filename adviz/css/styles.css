@@ -25,7 +25,6 @@ body {
 }
 
 #menu {
-	/*display: flex;*/
 	justify-content: center;
 	align-items: center;
 }
@@ -53,7 +52,7 @@ body {
 .grid-container {
 	border-radius: 25px;
 	display: grid;
-	grid-template-areas: 'header header header header header header' 'menu main main main main main' ;
+	grid-template-areas: 'header header header header header header' 'menu main main main main main';
 	grid-gap: 10px;
 	background-color: #76B900;
 	padding: 10px;
@@ -111,13 +110,11 @@ select {
 	box-sizing: border-box;
 }
 
-
 label {
 	font-size: 20px;
 }
 
-
-#login_view{
+#login_view {
 	width: 300px;
 	height: auto;
 	padding: 0px 30px;
@@ -125,67 +122,63 @@ label {
 	border-radius: 10px;
 	box-shadow: 0 0 10px 0 #000;
 	margin: auto;
-	}
-	
-	#login_view form{
-	  width: 250px;
-	  text-align: center;
-	  margin-left: auto;
-	  margin-right: auto;
-	  background-color: whitesmoke;
-	  border: none;
-	}
-	
-	
-	#login_view input{
+}
+
+#login_view form {
+	width: 250px;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: whitesmoke;
+	border: none;
+}
+
+#login_view input {
 	width: 250px;
 	padding: 8px 0px;
 	border-radius: 10px;
 	border: none;
 	background-color: #c7f3c9;
 	margin-bottom: 10px;
-	}
-	
-	#login_view button{
-	 width: 100px;
-	 padding: 8px 0px;
+}
+
+#login_view button {
+	width: 100px;
+	padding: 8px 0px;
 	border-radius: 10px;
 	margin-bottom: 20px;
-	}
+}
 
-	#login_view h2{
-		padding-top: 10px;
-	}
+#login_view h2 {
+	padding-top: 10px;
+}
 
-	#login_view label{
-		font-size: medium;
-	}
+#login_view label {
+	font-size: medium;
+}
 
-	form {
-		padding: 1em;
-		background: lightgray;
-		border: 1px solid #c1c1c1;
-		margin-top: 2rem;
-		max-width: 600px;
-		margin-left: auto;
-		margin-right: auto;
-		padding: 1em;
-		overflow: hidden;
-		border-radius: var(--border-radius);
-		background-color: rgb(209, 203, 203);
-		padding: 20px;
-	  }
+form {
+	padding: 1em;
+	background: lightgray;
+	border: 1px solid #c1c1c1;
+	margin-top: 2rem;
+	max-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 1em;
+	overflow: hidden;
+	border-radius: var(--border-radius);
+	background-color: rgb(209, 203, 203);
+	padding: 20px;
+}
 
-.bar {  display: flex;
+.bar {
+	display: flex;
 	justify-content: center;
 	align-items: center;
 	align-content: center;
-	  }
-
-.page{
-	padding: 3em ;
 }
 
-
-	
-	 
+.page {
+	padding: 3em;
+}
