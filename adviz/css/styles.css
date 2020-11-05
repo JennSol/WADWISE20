@@ -53,7 +53,7 @@ body {
 .grid-container {
 	border-radius: 25px;
 	display: grid;
-	grid-template-areas: 'header header header header header header' 'menu main main main main main' 'menu footer footer footer footer footer';
+	grid-template-areas: 'header header header header header header' 'menu main main main main main' ;
 	grid-gap: 10px;
 	background-color: #76B900;
 	padding: 10px;
