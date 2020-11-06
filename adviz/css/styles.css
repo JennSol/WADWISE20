@@ -44,10 +44,6 @@ body {
 	border-radius: var(--border-radius);
 }
 
-.footer {
-	grid-area: footer;
-	border-radius: var(--border-radius);
-}
 
 .grid-container {
 	border-radius: 25px;
