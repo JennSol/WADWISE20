@@ -178,3 +178,13 @@ form {
 .page {
 	padding: 3em;
 }
+
+#addnew_dialog{
+	display: none;
+}
+#delete_update_screen{
+	display: none;
+}
+#admin_view{	
+	display: none;
+}
