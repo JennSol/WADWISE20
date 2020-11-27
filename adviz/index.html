@@ -13,14 +13,14 @@
 </head>
 <body>
   <div class="page" id="login_view">
-    <form>
+    <form onsubmit="return false">
       <h2>Login</h2>
       <label for="user_name">Username </label>
       <input type="text" id="user_name" name="user_name" required>
       <label for="password">Passwort </label>
       <input type="password" id="password" name="password" required>
-      <button type="submit" id="login_button" value="login" name="login_button">login</button>
-    </form>
+      <button id="login_button" value="login" name="login_button" onclick="login()">login</button>
+    </form >
   </div>
   <div class="page" id="admin_view">
     <div class="grid-container">
