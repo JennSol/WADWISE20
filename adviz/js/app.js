@@ -34,7 +34,7 @@ function authenticate(username, password) {
 
 function loginSuccessful() {
     disableLoginView();
-    enableAdminView();
+    enableAdminView(); 
 }
 
 function disableLoginView() {
@@ -53,4 +53,22 @@ function login() {
     let password = document.getElementById('password').value;
     let username = document.getElementById('user_name').value;
     authenticate(username, password);
+}
+
+
+function disableAdminView(){
+    adminview = document.getElementById('admin_view');
+    adminview.style.display = 'none';
+}
+
+function enableLoginView() {
+    loginview = document.getElementById('login_view');
+    loginview.style.display = 'initial';
+    document.getElementById('user_name').value= '';
+    document.getElementById('password').value='';
+}
+
+function logout() {
+    disableAdminView();
+    enableLoginView();
 }
