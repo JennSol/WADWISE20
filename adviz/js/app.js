@@ -32,20 +32,20 @@ function authenticate(username, password) {
     });
 }
 
-function loginSuccessful(){
+function loginSuccessful() {
     disableLoginView();
-    enableAdminView();    
+    enableAdminView();
 }
 
-function disableLoginView(){
+function disableLoginView() {
     loginview = document.getElementById('login_view');
     loginview.style.display = 'none';
-    
+
 }
 
-function enableAdminView(){
+function enableAdminView() {
     adminview = document.getElementById('admin_view');
-    adminview.style.display = 'block';
+    adminview.style.display = 'initial';
     mymap.invalidateSize();
 }
 

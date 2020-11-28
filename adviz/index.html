@@ -14,10 +14,10 @@
 <body>
   <div class="page" id="login_view">
     <form onsubmit="return false">
-      <h2>Login</h2>
-      <label for="user_name">Username </label>
+      <h1>Login</h1>
+      <label for="user_name">Username* </label>
       <input type="text" id="user_name" name="user_name" required>
-      <label for="password">Passwort </label>
+      <label for="password">Passwort* </label>
       <input type="password" id="password" name="password" required>
       <button id="login_button" value="login" name="login_button" onclick="login()">login</button>
     </form >
@@ -25,16 +25,9 @@
   <div class="page" id="admin_view">
     <div class="grid-container">
       <div class="header">
-        <div id="menu">
-          <button id="button_showmine" class="button">
-            Zeige meine
-          </button>
-          <button id="button_showall" class="button">
-            Zeige alle
-          </button>
-          <button id="button_addnew" class="button">
-            Neu
-          </button>
+        <div class="bar">
+          <h2 id="greeting" > Hello... </h2>
+          <button type="submit" class="button" id="logout_button" value="logout" name="logout_button">LogOut</button>
         </div>
       </div>
       <div class="menu">
@@ -68,6 +61,19 @@
         <div id="map">
         </div>
       </div>
+      <div class="footer">
+        <div id="menu">
+          <button id="button_showmine" class="button">
+            Zeige meine
+          </button>
+          <button id="button_showall" class="button">
+            Zeige alle
+          </button>
+          <button id="button_addnew" class="button">
+            Neu
+          </button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="page" id="addnew_dialog">
@@ -81,19 +87,19 @@
         <option value="male">männlich</option>
         <option value="female">weiblich</option>
       </select>
-      <label for="prename">Vorname</label>
+      <label for="prename">Vorname*</label>
       <input type="text" id="prename" name="prename" required>
-      <label for="name">Nachname</label>
+      <label for="name">Nachname*</label>
       <input type="text" id="name" name="name" required>
-      <label for="street">Straße</label>
+      <label for="street">Straße*</label>
       <input type="text" id="street" name="street" required>
-      <label for="house">Hausnummer</label>
+      <label for="house">Hausnummer*</label>
       <input type="text" id="house" name="number" required>
-      <label for="postcode">Postleitzahl</label>
+      <label for="postcode">Postleitzahl*</label>
       <input type="text" id="postcode" name="postcode" required>
-      <label for="city">Stadt</label>
+      <label for="city">Stadt*</label>
       <input type="text" id="city" name="city" required>
-      <label for="country">Land</label>
+      <label for="country">Land*</label>
       <input type="text" id="county" name="country" required>
       <label for="email">Email</label>
       <input type="text" id="email" name="email">
@@ -118,19 +124,19 @@
         <option value="male">männlich</option>
         <option value="female">weiblich</option>
       </select>
-      <label for="prename">Vorname</label>
+      <label for="prename">Vorname*</label>
       <input type="text" id="prename" name="prename" required>
-      <label for="name">Nachname</label>
+      <label for="name">Nachname*</label>
       <input type="text" id="name" name="name" required>
-      <label for="street">Straße</label>
+      <label for="street">Straße*</label>
       <input type="text" id="street" name="street" required>
-      <label for="house">Hausnummer</label>
+      <label for="house">Hausnummer*</label>
       <input type="text" id="house" name="number" required>
-      <label for="postcode">Postleitzahl</label>
+      <label for="postcode">Postleitzahl*</label>
       <input type="text" id="postcode" name="postcode" required>
-      <label for="city">Stadt</label>
+      <label for="city">Stadt*</label>
       <input type="text" id="city" name="city" required>
-      <label for="country">Land</label>
+      <label for="country">Land*</label>
       <input type="text" id="county" name="country" required>
       <label for="email">Email</label>
       <input type="text" id="email" name="email">
