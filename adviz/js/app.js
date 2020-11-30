@@ -1,6 +1,9 @@
 var mymap = L.map('map').setView([52.456009, 13.527571], 14);
 var marker = L.marker([52.456009, 13.527571]).addTo(mymap);
 var contact_Map = new Map();
+var activeUser;
+var oldContactInfo;
+
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -27,11 +30,11 @@ function Contact(title, gender, firstName, lastName, street, house, postcode, ci
     this.private = private;
 }
 
-let mueller = new Contact(null, 'male', 'Hans', 'Mueller', 'Berliner Allee', 261, 13088, 'Berlin', 'Deutschland', 'Mueller@mail.de', null, true);
+
 let neumann = new Contact(null, 'female', 'Susi', 'Neumann', 'Landsberger Allee', 320, 10365, 'Berlin', 'Deutschland', 'Neumann@gmail.de', null, false);
 let schuster = new Contact(null, 'male', 'Robert', 'Schuster', 'Oberfeldstraße', 91, 12683, 'Berlin', 'Deutschland', 'Schuster@hotmail.de', null, true);
 let mayer = new Contact(null, 'female', 'Anne', 'Mayer', 'Bernauer Str.', 50, 10435, 'Berlin', 'Deutschland', 'Mayer@outlook.de', null, false);
-
+let mueller = new Contact(null, 'male', 'Hans', 'Mueller', 'Berliner Allee', 261, 13088, 'Berlin', 'Deutschland', 'Mueller@mail.de', null, true);
 function generateUsers() {
     let admina = new User('admina', 'abc', [mueller, neumann], true);
     let normalo = new User('normalo', 'abc', [schuster, mayer], false);
@@ -50,14 +53,15 @@ function authenticate(username, password) {
     //hardcoded login data, normally we would call our backend here
     users.forEach(element => {
         if (username == element.username && password == element.password) {
-            loginSuccessful(element);
+            activeUser = element;
+            loginSuccessful();
         }
     });
 }
 
-function loginSuccessful(activeUser) {
+function loginSuccessful() {
     disableLoginView();
-    enableAdminView(activeUser);
+    enableAdminView();
 }
 
 function disableLoginView() {
@@ -66,11 +70,11 @@ function disableLoginView() {
 
 }
 
-function enableAdminView(activeUser) {
+function enableAdminView() {
     adminview = document.getElementById('admin_view');
     adminview.style.display = 'initial';
     mymap.invalidateSize();
-    showMyContacts(activeUser);
+    showMyContacts();
 }
 
 function login() {
@@ -79,6 +83,9 @@ function login() {
     authenticate(username, password);
 }
 
+function disableUpdateView() {
+    document.getElementById('delete_update_screen').style.display = 'none';
+}
 
 function disableAdminView() {
     adminview = document.getElementById('admin_view');
@@ -98,7 +105,7 @@ function logout() {
     enableLoginView();
 }
 
-function showMyContacts(activeUser) {
+function showMyContacts() {
     let counter = 0;
     contactList = document.getElementById('contact_list');
     activeUser.contacts.forEach(element => {
@@ -110,8 +117,7 @@ function showMyContacts(activeUser) {
         li.addEventListener("click", function (event) {
             id = event.target.id;
             openUpdateScreen(id);
-        }
-        )
+        })
         contactList.appendChild(li);
         counter++;
     });
@@ -128,20 +134,64 @@ function openUpdateScreen(id) {
     let updateScreen = document.getElementById('delete_update_screen');
     disableAdminView();
     updateScreen.style.display = 'initial';
-    let contactInfo = contact_Map.get(parseInt( id));
+    let contactInfo = contact_Map.get(parseInt(id));
     document.getElementById('title_d').value = contactInfo.title;
-    document.getElementById('genders_d').value= contactInfo.gender;
+    document.getElementById('genders_d').value = contactInfo.gender;
     document.getElementById('prename_d').value = contactInfo.firstName;
-    document.getElementById('name_d').value=  contactInfo.lastName;
-    document.getElementById('street_d').value= contactInfo.street;
-    document.getElementById('house_d').value= contactInfo.house;
-    document.getElementById('postcode_d').value= contactInfo.postcode;
-    document.getElementById('city_d').value= contactInfo.city;
-    document.getElementById('county_d').value= contactInfo.country;
-    document.getElementById('email_d').value= contactInfo.email;
-    document.getElementById('other_d').value= contactInfo.other;
-    document.getElementById('privateBox_d').value= contactInfo.private;
+    document.getElementById('name_d').value = contactInfo.lastName;
+    document.getElementById('street_d').value = contactInfo.street;
+    document.getElementById('house_d').value = contactInfo.house;
+    document.getElementById('postcode_d').value = contactInfo.postcode;
+    document.getElementById('city_d').value = contactInfo.city;
+    document.getElementById('county_d').value = contactInfo.country;
+    document.getElementById('email_d').value = contactInfo.email;
+    document.getElementById('other_d').value = contactInfo.other;
+    document.getElementById('privateBox_d').value = contactInfo.private;
 
+    oldContactInfo = contactInfo;
+}
+
+function updateContact() {
+    updatedContact = getContactData();
+    if (activeUser.admin == true) {
+        users.forEach(element => {
+            for (let index = 0; index < element.contacts.length; index++) {
+                if (element.contacts[index] == oldContactInfo) {
+                    element.contacts[index] = updatedContact;
+                    disableUpdateView();
+                    enableAdminView();
+                }
+            }
+        });
+    }
+    if (activeUser.admin == false) {
+        for (let index = 0; index < activeUser.contacts.length; index++) {
+            if (activeUser.contacts[index] == oldContactInfo) {
+                activeUser.contacts[index] = updatedContact;
+                disableUpdateView();
+                enableAdminView();
+            }
+        }
+    }
+}
+
+function getContactData() {
+
+    let title = document.getElementById('title_d').value;
+    let gender = document.getElementById('genders_d').value;
+    let firstname = document.getElementById('prename_d').value;
+    let lastName = document.getElementById('name_d').value;
+    let street = document.getElementById('street_d').value;
+    let house = parseInt(document.getElementById('house_d').value);
+    let postcode = parseInt(document.getElementById('postcode_d').value);
+    let city = document.getElementById('city_d').value;
+    let country = document.getElementById('county_d').value;
+    let email = document.getElementById('email_d').value;
+    let other = document.getElementById('other_d').value;
+    let private = document.getElementById('privateBox_d').value;
+
+    let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
+    return contact;
 }
 
 

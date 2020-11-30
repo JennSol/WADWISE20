@@ -55,7 +55,7 @@
     </div>
   </div>
   <div class="page" id="addnew_dialog">
-    <form class="form_dialog" id="form_addnew_dialog">
+    <form class="form_dialog" id="form_addnew_dialog" onsubmit="return false">
       <label for="title">Titel</label>
       <input type="text" id="title" name="title">
       <label for="genders">Geschlecht</label>
@@ -92,7 +92,7 @@
     </form>
   </div>
   <div class="page" id="delete_update_screen">
-    <form class="form_dialog">
+    <form class="form_dialog" onsubmit="return false">
       <label for="title_d">Titel</label>
       <input type="text" id="title_d" name="title_d">
       <label for="genders_d">Geschlecht</label>
@@ -123,7 +123,7 @@
       <div id="bar_d" class="bar">
         <label for="privateBox_d">Privat</label>
         <input type="checkbox" id="privateBox_d" name="privateBox_d" checked>
-        <button type="submit" class="button" id="update_button_d" value="update" name="update_button_d">Bearbeiten</button>
+        <button type="submit" class="button" id="update_button_d" value="update" name="update_button_d" onclick="updateContact()">Bearbeiten</button>
         <button type="submit" class="button" id="delete_button_d" value="delete" name="delete_button_d">Löschen</button>
       </div>
     </form>
