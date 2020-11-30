@@ -36,8 +36,8 @@ let schuster = new Contact(null, 'male', 'Robert', 'Schuster', 'Oberfeldstraße'
 let mayer = new Contact(null, 'female', 'Anne', 'Mayer', 'Bernauer Str.', 50, 10435, 'Berlin', 'Deutschland', 'Mayer@outlook.de', null, false);
 let mueller = new Contact(null, 'male', 'Hans', 'Mueller', 'Berliner Allee', 261, 13088, 'Berlin', 'Deutschland', 'Mueller@mail.de', null, true);
 function generateUsers() {
-    let admina = new User('admina', 'abc', [mueller, neumann], true);
-    let normalo = new User('normalo', 'abc', [schuster, mayer], false);
+    let admina = new User('Admina', 'abc', [mueller, neumann], true);
+    let normalo = new User('Normalo', 'abc', [schuster, mayer], false);
     return [admina, normalo];
 }
 
@@ -89,6 +89,10 @@ function disableUpdateView() {
 
 function enableAddnew_dialog(){
     document.getElementById('addnew_dialog').style.display = 'initial';
+}
+
+function disableAddnew_dialog(){
+    document.getElementById('addnew_dialog').style.display = 'none';
 }
 
 function disableAdminView() {
@@ -269,18 +273,35 @@ function getContactDataNewContact() {
     let country = document.getElementById('county').value;
     let email = document.getElementById('email').value;
     let other = document.getElementById('other').value;
-    let private = document.getElementById('privateBox').value;
+    let private = document.getElementById('privatebox').value;
 
     let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
     return contact;
 }
 
-function addContact(){
+function showAddDialog(){
     disableAdminView();
     enableAddnew_dialog();
-    let contactInfo= getContactDataNewContact();
+    if (activeUser.admin==true){
+        let userSelection = document.getElementById('users');
+        userSelection.style.display= 'initial';
+    }
 }
 
+function addContact(){
+    let newContact= getContactDataNewContact();
+    if (activeUser.admin==true){
+        let userSelection = document.getElementById('users').value;
+        users.forEach(element=>{
+            if(element.username ==  userSelection){
+                element.contacts.push(newContact);
+            }
+        })
+    }else {
+        activeUser.contacts.push(newContact);
+    }
 
-
+    disableAddnew_dialog();
+    enableAdminView();
+}
 

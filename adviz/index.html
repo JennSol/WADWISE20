@@ -47,7 +47,7 @@
           <button id="button_showall" class="button"  onclick="showAllContacts()">
             Zeige alle
           </button>
-          <button id="button_addnew" class="button" onclick="addContact()">
+          <button id="button_addnew" class="button" onclick="showAddDialog()">
             Neu
           </button>
         </div>
@@ -85,9 +85,11 @@
       <input type="text" id="other" name="other">
       <div class="bar">
         <label for="privateBox">Privat</label>
-        <input type="checkbox" id="checkbox" name="checkbox" checked>
-        <button type="submit" class="button" id="add_button" value="add" name="add_button" >Hinzufügen </button>
+        <input type="checkbox" id="privatebox" name="privatebox" checked>
+        <button type="submit" class="button" id="add_button" value="add" name="add_button" onclick="addContact()">Hinzufügen </button>
         <select id="users" name="users">
+          <option value="Normalo">Normalo</option>
+        <option value="Admina">Admina</option>
         </select>
       </div>
     </form>
