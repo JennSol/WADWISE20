@@ -105,22 +105,53 @@ function logout() {
     enableLoginView();
 }
 
+function addContactsToContactList(counter, element){
+    contact_Map.set(counter, element);
+    let li = document.createElement("li");
+    let contactInfo = document.createTextNode(element.firstName + " " + element.lastName);
+    li.appendChild(contactInfo);
+    li.id = counter;
+    li.addEventListener("click", function (event) {
+        id = event.target.id;
+        openUpdateScreen(id);
+    })
+    contactList.appendChild(li);
+    counter++;
+    return counter;
+}
+
+
 function showMyContacts() {
+    clearContactList();
     let counter = 0;
+    contact_Map.clear;
     contactList = document.getElementById('contact_list');
     activeUser.contacts.forEach(element => {
-        contact_Map.set(counter, element);
-        let li = document.createElement("li");
-        let contactInfo = document.createTextNode(element.firstName + " " + element.lastName);
-        li.appendChild(contactInfo);
-        li.id = counter;
-        li.addEventListener("click", function (event) {
-            id = event.target.id;
-            openUpdateScreen(id);
-        })
-        contactList.appendChild(li);
-        counter++;
+    counter = addContactsToContactList(counter, element);
     });
+}
+
+function showAllContacts() {
+    clearContactList();
+    let counter = 0;
+    contact_Map.clear;
+    contactList = document.getElementById('contact_list');
+    users.forEach(user => {
+        user.contacts.forEach(element => {
+            if ( isMyContact(element)== true|| !element.private || activeUser.admin && element.private) {
+                counter = addContactsToContactList(counter, element);
+            }
+        });
+    });
+}
+
+
+function isMyContact(contact) {
+    for (let index = 0; index < activeUser.contacts.length; index++) {
+        if (activeUser.contacts[index] == contact) {
+            return true;
+        }
+    }
 }
 
 function clearContactList() {
@@ -193,5 +224,6 @@ function getContactData() {
     let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
     return contact;
 }
+
 
 
