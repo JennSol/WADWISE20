@@ -205,3 +205,7 @@ form {
 #admin_view h2{
 	width: 80%;
 }
+
+#users{
+	display: none;
+}

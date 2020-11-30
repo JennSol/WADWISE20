@@ -87,6 +87,10 @@ function disableUpdateView() {
     document.getElementById('delete_update_screen').style.display = 'none';
 }
 
+function enableAddnew_dialog(){
+    document.getElementById('addnew_dialog').style.display = 'initial';
+}
+
 function disableAdminView() {
     adminview = document.getElementById('admin_view');
     adminview.style.display = 'none';
@@ -251,6 +255,32 @@ function deleteContact() {
         }
     }
 }
+
+function getContactDataNewContact() {
+
+    let title = document.getElementById('title').value;
+    let gender = document.getElementById('genders').value;
+    let firstname = document.getElementById('prename').value;
+    let lastName = document.getElementById('name').value;
+    let street = document.getElementById('street').value;
+    let house = parseInt(document.getElementById('house').value);
+    let postcode = parseInt(document.getElementById('postcode').value);
+    let city = document.getElementById('city').value;
+    let country = document.getElementById('county').value;
+    let email = document.getElementById('email').value;
+    let other = document.getElementById('other').value;
+    let private = document.getElementById('privateBox').value;
+
+    let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
+    return contact;
+}
+
+function addContact(){
+    disableAdminView();
+    enableAddnew_dialog();
+    let contactInfo= getContactDataNewContact();
+}
+
 
 
 
