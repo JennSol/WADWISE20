@@ -105,7 +105,7 @@ function logout() {
     enableLoginView();
 }
 
-function addContactsToContactList(counter, element){
+function addContactsToContactList(counter, element) {
     contact_Map.set(counter, element);
     let li = document.createElement("li");
     let contactInfo = document.createTextNode(element.firstName + " " + element.lastName);
@@ -127,7 +127,7 @@ function showMyContacts() {
     contact_Map.clear;
     contactList = document.getElementById('contact_list');
     activeUser.contacts.forEach(element => {
-    counter = addContactsToContactList(counter, element);
+        counter = addContactsToContactList(counter, element);
     });
 }
 
@@ -138,7 +138,7 @@ function showAllContacts() {
     contactList = document.getElementById('contact_list');
     users.forEach(user => {
         user.contacts.forEach(element => {
-            if ( isMyContact(element)== true|| !element.private || activeUser.admin && element.private) {
+            if (isMyContact(element) == true || !element.private || activeUser.admin && element.private) {
                 counter = addContactsToContactList(counter, element);
             }
         });
@@ -162,24 +162,28 @@ function clearContactList() {
 }
 
 function openUpdateScreen(id) {
-    let updateScreen = document.getElementById('delete_update_screen');
-    disableAdminView();
-    updateScreen.style.display = 'initial';
     let contactInfo = contact_Map.get(parseInt(id));
-    document.getElementById('title_d').value = contactInfo.title;
-    document.getElementById('genders_d').value = contactInfo.gender;
-    document.getElementById('prename_d').value = contactInfo.firstName;
-    document.getElementById('name_d').value = contactInfo.lastName;
-    document.getElementById('street_d').value = contactInfo.street;
-    document.getElementById('house_d').value = contactInfo.house;
-    document.getElementById('postcode_d').value = contactInfo.postcode;
-    document.getElementById('city_d').value = contactInfo.city;
-    document.getElementById('county_d').value = contactInfo.country;
-    document.getElementById('email_d').value = contactInfo.email;
-    document.getElementById('other_d').value = contactInfo.other;
-    document.getElementById('privateBox_d').value = contactInfo.private;
+    if (isMyContact(contactInfo) == true || activeUser.admin == true) {
+        let updateScreen = document.getElementById('delete_update_screen');
+        disableAdminView();
+        updateScreen.style.display = 'initial';
+        document.getElementById('title_d').value = contactInfo.title;
+        document.getElementById('genders_d').value = contactInfo.gender;
+        document.getElementById('prename_d').value = contactInfo.firstName;
+        document.getElementById('name_d').value = contactInfo.lastName;
+        document.getElementById('street_d').value = contactInfo.street;
+        document.getElementById('house_d').value = contactInfo.house;
+        document.getElementById('postcode_d').value = contactInfo.postcode;
+        document.getElementById('city_d').value = contactInfo.city;
+        document.getElementById('county_d').value = contactInfo.country;
+        document.getElementById('email_d').value = contactInfo.email;
+        document.getElementById('other_d').value = contactInfo.other;
+        document.getElementById('privateBox_d').value = contactInfo.private;
 
-    oldContactInfo = contactInfo;
+        oldContactInfo = contactInfo;
+    } else {
+        alert('Keine Berechtigung zum Bearbeiten oder Löschen!')
+    }
 }
 
 function updateContact() {
@@ -195,7 +199,7 @@ function updateContact() {
             }
         });
     }
-    if (activeUser.admin == false) {
+    else if (activeUser.admin == false) {
         for (let index = 0; index < activeUser.contacts.length; index++) {
             if (activeUser.contacts[index] == oldContactInfo) {
                 activeUser.contacts[index] = updatedContact;
@@ -223,6 +227,29 @@ function getContactData() {
 
     let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
     return contact;
+}
+
+function deleteContact() {
+    if (activeUser.admin == true) {
+        users.forEach(element => {
+            for (let index = 0; index < element.contacts.length; index++) {
+                if (element.contacts[index] == oldContactInfo) {
+                    element.contacts.splice(index, 1);
+                    disableUpdateView();
+                    enableAdminView();
+                }
+            }
+        });
+    }
+    else if (activeUser.admin == false) {
+        for (let index = 0; index < activeUser.contacts.length; index++) {
+            if (activeUser.contacts[index] == oldContactInfo) {
+                activeUser.contacts.splice(index, 1);
+                disableUpdateView();
+                enableAdminView();
+            }
+        }
+    }
 }
 
 
