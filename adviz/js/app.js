@@ -60,6 +60,7 @@ function authenticate(username, password) {
 }
 
 function loginSuccessful() {
+    greeting();
     disableLoginView();
     enableAdminView();
 }
@@ -87,11 +88,11 @@ function disableUpdateView() {
     document.getElementById('delete_update_screen').style.display = 'none';
 }
 
-function enableAddnew_dialog(){
+function enableAddnew_dialog() {
     document.getElementById('addnew_dialog').style.display = 'initial';
 }
 
-function disableAddnew_dialog(){
+function disableAddnew_dialog() {
     document.getElementById('addnew_dialog').style.display = 'none';
 }
 
@@ -279,36 +280,32 @@ function getContactDataNewContact() {
     return contact;
 }
 
-function showAddDialog(){
+function showAddDialog() {
     disableAdminView();
     enableAddnew_dialog();
-    if (activeUser.admin==true){
+    if (activeUser.admin == true) {
         let userSelection = document.getElementById('users');
-        userSelection.style.display= 'initial';
+        userSelection.style.display = 'initial';
     }
 }
 
-function addContact(){
-    let newContact= getContactDataNewContact();
-    var form = document.getElementById("form_addnew_dialog");
-    
-    //form.addEventListener('submit', function(event) { event.preventDefault(); } );
-
-    if (activeUser.admin==true){
+function addContact() {
+    let newContact = getContactDataNewContact();
+    if (activeUser.admin == true) {
         let userSelection = document.getElementById('users').value;
-        users.forEach(element=>{
-            if(element.username ==  userSelection){
+        users.forEach(element => {
+            if (element.username == userSelection) {
                 element.contacts.push(newContact);
             }
         })
-    }else {
+    } else {
         activeUser.contacts.push(newContact);
     }
-
     disableAddnew_dialog();
     enableAdminView();
+}
 
-    return false;
-
+function greeting(){
+    let title = document.getElementById('greeting').innerHTML= "Hallo "+ activeUser.username;
 }
 
