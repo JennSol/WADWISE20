@@ -231,7 +231,7 @@ function getContactData() {
     let country = document.getElementById('county_d').value;
     let email = document.getElementById('email_d').value;
     let other = document.getElementById('other_d').value;
-    let private = document.getElementById('privateBox_d').value;
+    let private = document.getElementById('privateBox_d').checked;
 
     let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
     return contact;
@@ -273,7 +273,7 @@ function getContactDataNewContact() {
     let country = document.getElementById('county').value;
     let email = document.getElementById('email').value;
     let other = document.getElementById('other').value;
-    let private = document.getElementById('privatebox').value;
+    let private = document.getElementById('privatebox').checked;
 
     let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
     return contact;
@@ -290,6 +290,10 @@ function showAddDialog(){
 
 function addContact(){
     let newContact= getContactDataNewContact();
+    var form = document.getElementById("form_addnew_dialog");
+    
+    //form.addEventListener('submit', function(event) { event.preventDefault(); } );
+
     if (activeUser.admin==true){
         let userSelection = document.getElementById('users').value;
         users.forEach(element=>{
@@ -303,5 +307,8 @@ function addContact(){
 
     disableAddnew_dialog();
     enableAdminView();
+
+    return false;
+
 }
 
