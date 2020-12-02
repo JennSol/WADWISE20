@@ -114,7 +114,7 @@ function logout() {
     enableLoginView();
 }
 
-function addContactsToContactList(counter, element) {
+function addContactToContactList(counter, element) {
     contact_Map.set(counter, element);
     let li = document.createElement("li");
     let contactInfo = document.createTextNode(element.firstName + " " + element.lastName);
@@ -123,32 +123,33 @@ function addContactsToContactList(counter, element) {
     li.addEventListener("click", function (event) {
         id = event.target.id;
         openUpdateScreen(id);
-    })
+    });
     contactList.appendChild(li);
-    counter++;
-    return counter;
+
 }
 
 
 function showMyContacts() {
     clearContactList();
     let counter = 0;
-    contact_Map.clear;
+    contact_Map.clear();
     contactList = document.getElementById('contact_list');
     activeUser.contacts.forEach(element => {
-        counter = addContactsToContactList(counter, element);
+        addContactToContactList(counter, element);
+        counter++;
     });
 }
 
 function showAllContacts() {
     clearContactList();
     let counter = 0;
-    contact_Map.clear;
+    contact_Map.clear();
     contactList = document.getElementById('contact_list');
     users.forEach(user => {
         user.contacts.forEach(element => {
             if (isMyContact(element) == true || !element.private || activeUser.admin && element.private) {
-                counter = addContactsToContactList(counter, element);
+                addContactToContactList(counter, element);
+                counter++;
             }
         });
     });
@@ -197,7 +198,7 @@ function openUpdateScreen(id) {
 
 function updateContact() {
     updatedContact = getContactData();
-    if (activeUser.admin == true) {
+    if (activeUser.admin) {
         users.forEach(element => {
             for (let index = 0; index < element.contacts.length; index++) {
                 if (element.contacts[index] == oldContactInfo) {
@@ -208,7 +209,7 @@ function updateContact() {
             }
         });
     }
-    else if (activeUser.admin == false) {
+    else {
         for (let index = 0; index < activeUser.contacts.length; index++) {
             if (activeUser.contacts[index] == oldContactInfo) {
                 activeUser.contacts[index] = updatedContact;
@@ -250,7 +251,7 @@ function deleteContact() {
             }
         });
     }
-    else if (activeUser.admin == false) {
+    else {
         for (let index = 0; index < activeUser.contacts.length; index++) {
             if (activeUser.contacts[index] == oldContactInfo) {
                 activeUser.contacts.splice(index, 1);
@@ -276,9 +277,12 @@ function getContactDataNewContact() {
     let other = document.getElementById('other').value;
     let private = document.getElementById('privatebox').checked;
 
-    let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
-    return contact;
+        let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
+        return contact;
+ 
 }
+
+
 
 function showAddDialog() {
     disableAdminView();
@@ -297,7 +301,7 @@ function addContact() {
             if (element.username == userSelection) {
                 element.contacts.push(newContact);
             }
-        })
+        });
     } else {
         activeUser.contacts.push(newContact);
     }
@@ -305,7 +309,7 @@ function addContact() {
     enableAdminView();
 }
 
-function greeting(){
-    let title = document.getElementById('greeting').innerHTML= "Hallo "+ activeUser.username;
+function greeting() {
+    let title = document.getElementById('greeting').innerHTML = "Hallo " + activeUser.username;
 }
 
