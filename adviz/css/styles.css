@@ -21,7 +21,9 @@ body {
 }
 
 #map {
-	height: 300px;
+	margin: auto;
+	height: 400px;
+	width: 90%;
 }
 
 #menu {
@@ -33,6 +35,9 @@ body {
 	grid-area: header;
 	border-radius: var(--border-radius);
 }
+.header button{
+float: right;
+}
 
 .menu {
 	grid-area: menu;
@@ -43,14 +48,19 @@ body {
 	grid-area: main;
 	border-radius: var(--border-radius);
 }
+.footer { 
+    grid-area: footer; 
+    border-radius: var(--border-radius);
+}
+
 
 
 .grid-container {
 	border-radius: 25px;
 	display: grid;
-	grid-template-areas: 'header header header header header header' 'menu main main main main main';
+	grid-template-areas: 'header header header header header header' 'menu menu main main main main''menu menu footer footer footer footer' ;
 	grid-gap: 10px;
-	background-color: #76B900;
+	background-color:#76B900;
 	padding: 10px;
 }
 
@@ -110,6 +120,7 @@ label {
 	font-size: 20px;
 }
 
+
 #login_view {
 	width: 300px;
 	height: auto;
@@ -117,7 +128,10 @@ label {
 	background-color: whitesmoke;
 	border-radius: 10px;
 	box-shadow: 0 0 10px 0 #000;
+	top:25%;
+	left: 35%;
 	margin: auto;
+	position: absolute;
 }
 
 #login_view form {
@@ -146,6 +160,8 @@ label {
 }
 
 #login_view h2 {
+	text-transform: uppercase;
+	font-weight: 900;
 	padding-top: 10px;
 }
 
@@ -175,9 +191,6 @@ form {
 	align-content: center;
 }
 
-.page {
-	padding: 3em;
-}
 
 #addnew_dialog{
 	display: none;
@@ -186,5 +199,13 @@ form {
 	display: none;
 }
 #admin_view{	
+	display: none;
+}
+
+#admin_view h2{
+	width: 80%;
+}
+
+#users{
 	display: none;
 }
