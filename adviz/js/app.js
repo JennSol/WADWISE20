@@ -28,6 +28,8 @@ function Contact(title, gender, firstName, lastName, street, house, postcode, ci
     this.email = email;
     this.other = other;
     this.private = private;
+    this.lat = null;
+    this.lon = null;
 }
 
 
@@ -118,6 +120,16 @@ function addContactToContactList(counter, element) {
     contact_Map.set(counter, element);
     let li = document.createElement("li");
     let contactInfo = document.createTextNode(element.firstName + " " + element.lastName);
+    const request = new Request('https://nominatim.openstreetmap.org/search.php?q=' + element.street + '%20' + element.house + '%20' + element.postcode + '&polygon_geojson=1&format=jsonv2');
+    const url = request.url;
+    const method = request.method;
+    fetch(request)
+        .then(response => response.json())
+        .then(json => {
+            console.log(json[0].lat +" "+ json[0].lon);
+            L.marker([parseFloat(json[0].lat), parseFloat(json[0].lon)]).addTo(mymap).bindPopup('<b>'+ element.firstName +" "+ element.lastName +"</b><br>"+element.street + " " + element.house + ", " + element.postcode);
+        });
+    const credentials = request.credentials;
     li.appendChild(contactInfo);
     li.id = counter;
     li.addEventListener("click", function (event) {
@@ -196,28 +208,35 @@ function openUpdateScreen(id) {
     }
 }
 
-function updateContact() {
-    updatedContact = getContactData();
-    if (activeUser.admin) {
-        users.forEach(element => {
-            for (let index = 0; index < element.contacts.length; index++) {
-                if (element.contacts[index] == oldContactInfo) {
-                    element.contacts[index] = updatedContact;
+async function updateContact() {
+    let updatedContact = getContactData();
+    let valid = await contactAddressValid(updateContact); 
+    if(valid){
+        if (activeUser.admin) {
+            users.forEach(element => {
+                for (let index = 0; index < element.contacts.length; index++) {
+                    if (element.contacts[index] == oldContactInfo) {
+                        element.contacts[index] = updatedContact;
+                        disableUpdateView();
+                        enableAdminView();
+                    }
+                }
+            });
+        }
+        else {
+            for (let index = 0; index < activeUser.contacts.length; index++) {
+                if (activeUser.contacts[index] == oldContactInfo) {
+                    activeUser.contacts[index] = updatedContact;
                     disableUpdateView();
                     enableAdminView();
                 }
             }
-        });
-    }
-    else {
-        for (let index = 0; index < activeUser.contacts.length; index++) {
-            if (activeUser.contacts[index] == oldContactInfo) {
-                activeUser.contacts[index] = updatedContact;
-                disableUpdateView();
-                enableAdminView();
-            }
         }
+    } else {
+        alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
     }
+
+    
 }
 
 function getContactData() {
@@ -277,9 +296,9 @@ function getContactDataNewContact() {
     let other = document.getElementById('other').value;
     let private = document.getElementById('privatebox').checked;
 
-        let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
-        return contact;
- 
+    let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
+    return contact;
+
 }
 
 
@@ -295,21 +314,46 @@ function showAddDialog() {
 
 function addContact() {
     let newContact = getContactDataNewContact();
-    if (activeUser.admin == true) {
-        let userSelection = document.getElementById('users').value;
-        users.forEach(element => {
-            if (element.username == userSelection) {
-                element.contacts.push(newContact);
-            }
-        });
-    } else {
-        activeUser.contacts.push(newContact);
+    if(contactAddressValid(newContact)){
+        if (activeUser.admin == true) {
+            let userSelection = document.getElementById('users').value;
+            users.forEach(element => {
+                if (element.username == userSelection) {
+                    element.contacts.push(newContact);
+                }
+            });
+        } else {
+            activeUser.contacts.push(newContact);
+        }
+        disableAddnew_dialog();
+        enableAdminView();   
+    }else {
+        alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
     }
-    disableAddnew_dialog();
-    enableAdminView();
+
 }
 
 function greeting() {
     let title = document.getElementById('greeting').innerHTML = "Hallo " + activeUser.username;
 }
 
+async function contactAddressValid (contact){
+
+/*
+    const response = await ('https://nominatim.openstreetmap.org/search.php?q=' + contact.street + '%20' + contact.house + '%20' + contact.postcode + '&polygon_geojson=1&format=jsonv2');
+    const json = await response.json();
+    console.log(json.length);
+    return json.length>0;
+    */
+    
+    const request = new Request('https://nominatim.openstreetmap.org/search.php?q=' + contact.street + '%20' + contact.house + '%20' + contact.postcode + '&polygon_geojson=1&format=jsonv2');
+    const url = request.url;
+    const method = request.method;
+    await fetch(request)
+        .then(response => response.json())
+        .then(json => {
+            let lenghtbiggerthanzero=json.length<0;
+            return lenghtbiggerthanzero;
+        });
+    
+}
