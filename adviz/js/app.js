@@ -28,8 +28,6 @@ function Contact(title, gender, firstName, lastName, street, house, postcode, ci
     this.email = email;
     this.other = other;
     this.private = private;
-    this.lat = null;
-    this.lon = null;
 }
 
 
@@ -53,12 +51,18 @@ function User(username, password, contacts, admin) {
 
 function authenticate(username, password) {
     //hardcoded login data, normally we would call our backend here
+    let authenticated = false;
     users.forEach(element => {
         if (username == element.username && password == element.password) {
             activeUser = element;
-            loginSuccessful();
+            authenticated = true;
         }
     });
+    if(authenticated){
+        loginSuccessful();
+    }else {
+        alert('Benutzername oder Passwort inkorrekt');
+    }
 }
 
 function loginSuccessful() {
@@ -121,7 +125,6 @@ function addContactToContactList(counter, element) {
     let li = document.createElement("li");
     let contactInfo = document.createTextNode(element.firstName + " " + element.lastName);
     let call = "https://api.tomtom.com/search/2/geocode/" + element.street + "%20" + element.house + "%20" + element.city + ".json?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
-    //const request = new Request('https://nominatim.openstreetmap.org/search.php?q=' + element.street + '%20' + element.house + '%20' + element.postcode + '&polygon_geojson=1&format=jsonv2');
     const request = new Request(call);
     const url = request.url;
     const method = request.method;
@@ -225,9 +228,9 @@ function openUpdateScreen(id) {
 
 async function updateContact() {
     const updatedContact = getContactData();
-    
+
     const valid = await contactAddressValid(updatedContact.street, updatedContact.house, updatedContact.city)
-    if (valid) {    
+    if (valid) {
         if (activeUser.admin) {
             users.forEach(element => {
                 for (let index = 0; index < element.contacts.length; index++) {
@@ -314,8 +317,6 @@ function getContactDataNewContact() {
 
 }
 
-
-
 function showAddDialog() {
     disableAdminView();
     enableAddnew_dialog();
@@ -325,26 +326,25 @@ function showAddDialog() {
     }
 }
 
-function addContact() {
+async function addContact() {
     const newContact = getContactDataNewContact();
-    contactAddressValid(newContact.street, newContact.house, newContact.city).then(valid => {
-        if (valid) {
-            if (activeUser.admin == true) {
-                let userSelection = document.getElementById('users').value;
-                users.forEach(element => {
-                    if (element.username == userSelection) {
-                        element.contacts.push(newContact);
-                    }
-                });
-            } else {
-                activeUser.contacts.push(newContact);
-            }
-            disableAddnew_dialog();
-            enableAdminView();
+    const valid = await contactAddressValid(newContact.street, newContact.house, newContact.city);
+    if (valid) {
+        if (activeUser.admin == true) {
+            let userSelection = document.getElementById('users').value;
+            users.forEach(element => {
+                if (element.username == userSelection) {
+                    element.contacts.push(newContact);
+                }
+            });
         } else {
-            alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
+            activeUser.contacts.push(newContact);
         }
-    });
+        disableAddnew_dialog();
+        enableAdminView();
+    } else {
+        alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
+    }
 }
 
 function greeting() {
