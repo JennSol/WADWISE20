@@ -125,6 +125,7 @@ function addContactToContactList(counter, element) {
     const request = new Request(call);
     const url = request.url;
     const method = request.method;
+    removeAllMarkersFromMap();
     fetch(request)
         .then(response => response.json())
         .then(json => {
@@ -222,35 +223,34 @@ function openUpdateScreen(id) {
     }
 }
 
-function updateContact() {
+async function updateContact() {
     const updatedContact = getContactData();
-    contactAddressValid(updateContact.street, updateContact.house, updateContact.city).then(valid => {
-        if (valid) {
-            if (activeUser.admin) {
-                users.forEach(element => {
-                    for (let index = 0; index < element.contacts.length; index++) {
-                        if (element.contacts[index] == oldContactInfo) {
-                            element.contacts[index] = updatedContact;
-                            disableUpdateView();
-                            enableAdminView();
-                        }
-                    }
-                });
-            }
-            else {
-                for (let index = 0; index < activeUser.contacts.length; index++) {
-                    if (activeUser.contacts[index] == oldContactInfo) {
-                        activeUser.contacts[index] = updatedContact;
+    
+    const valid = await contactAddressValid(updatedContact.street, updatedContact.house, updatedContact.city)
+    if (valid) {    
+        if (activeUser.admin) {
+            users.forEach(element => {
+                for (let index = 0; index < element.contacts.length; index++) {
+                    if (element.contacts[index] == oldContactInfo) {
+                        element.contacts[index] = updatedContact;
                         disableUpdateView();
                         enableAdminView();
                     }
                 }
-            }
-        } else {
-            alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
+            });
         }
-    });
-
+        else {
+            for (let index = 0; index < activeUser.contacts.length; index++) {
+                if (activeUser.contacts[index] == oldContactInfo) {
+                    activeUser.contacts[index] = updatedContact;
+                    disableUpdateView();
+                    enableAdminView();
+                }
+            }
+        }
+    } else {
+        alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
+    }
 }
 
 function getContactData() {
@@ -361,11 +361,10 @@ async function contactAddressValid(street, house, city) {
     const method = request.method;
     let valid = false;
     const response = await fetch(call);
-    const json = await(response.json());
-    valid = await json.results.forEach(result => {
+    const json = await (response.json());
+    await json.results.forEach(result => {
         if (result.type == "Point Address") {
-            console.log('point address found, address is valid');
-            return true;
+            valid = true;
         };
     });
     return valid;
