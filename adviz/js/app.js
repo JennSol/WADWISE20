@@ -132,11 +132,13 @@ function addContactToContactList(counter, element) {
     fetch(request)
         .then(response => response.json())
         .then(json => {
+            let contactAddedToMap = false;
             json.results.forEach(result => {
-                if (result.type == "Point Address") {
+                if (result.type == "Point Address" && !contactAddedToMap) {
                     let newMarker = L.marker([parseFloat(result.position.lat), parseFloat(result.position.lon)]);
                     marker.push(newMarker);
                     newMarker.addTo(mymap).bindPopup('<b>' + element.firstName + " " + element.lastName + "</b><br>" + element.street + " " + element.house + ", " + element.postcode);
+                    contactAddedToMap = true;
                 };
             });
         });
