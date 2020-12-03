@@ -1,9 +1,9 @@
 var mymap = L.map('map').setView([52.456009, 13.527571], 14);
-var marker = L.marker([52.456009, 13.527571]).addTo(mymap);
 var contact_Map = new Map();
 var activeUser;
 var oldContactInfo;
 
+var marker = new Array();
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -120,14 +120,21 @@ function addContactToContactList(counter, element) {
     contact_Map.set(counter, element);
     let li = document.createElement("li");
     let contactInfo = document.createTextNode(element.firstName + " " + element.lastName);
-    const request = new Request('https://nominatim.openstreetmap.org/search.php?q=' + element.street + '%20' + element.house + '%20' + element.postcode + '&polygon_geojson=1&format=jsonv2');
+    let call = "https://api.tomtom.com/search/2/geocode/" + element.street + "%20" + element.house + "%20" + element.city + ".json?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
+    //const request = new Request('https://nominatim.openstreetmap.org/search.php?q=' + element.street + '%20' + element.house + '%20' + element.postcode + '&polygon_geojson=1&format=jsonv2');
+    const request = new Request(call);
     const url = request.url;
     const method = request.method;
     fetch(request)
         .then(response => response.json())
         .then(json => {
-            console.log(json[0].lat +" "+ json[0].lon);
-            L.marker([parseFloat(json[0].lat), parseFloat(json[0].lon)]).addTo(mymap).bindPopup('<b>'+ element.firstName +" "+ element.lastName +"</b><br>"+element.street + " " + element.house + ", " + element.postcode);
+            json.results.forEach(result => {
+                if (result.type == "Point Address") {
+                    let newMarker = L.marker([parseFloat(result.position.lat), parseFloat(result.position.lon)]);
+                    marker.push(newMarker);
+                    newMarker.addTo(mymap).bindPopup('<b>' + element.firstName + " " + element.lastName + "</b><br>" + element.street + " " + element.house + ", " + element.postcode);
+                };
+            });
         });
     const credentials = request.credentials;
     li.appendChild(contactInfo);
@@ -140,12 +147,18 @@ function addContactToContactList(counter, element) {
 
 }
 
+function removeAllMarkersFromMap() {
+    marker.forEach(element => {
+        mymap.removeLayer(element);
+    });
+}
 
 function showMyContacts() {
     clearContactList();
     let counter = 0;
     contact_Map.clear();
     contactList = document.getElementById('contact_list');
+    removeAllMarkersFromMap();
     activeUser.contacts.forEach(element => {
         addContactToContactList(counter, element);
         counter++;
@@ -157,6 +170,7 @@ function showAllContacts() {
     let counter = 0;
     contact_Map.clear();
     contactList = document.getElementById('contact_list');
+    removeAllMarkersFromMap();
     users.forEach(user => {
         user.contacts.forEach(element => {
             if (isMyContact(element) == true || !element.private || activeUser.admin && element.private) {
@@ -208,35 +222,35 @@ function openUpdateScreen(id) {
     }
 }
 
-async function updateContact() {
-    let updatedContact = getContactData();
-    let valid = await contactAddressValid(updateContact); 
-    if(valid){
-        if (activeUser.admin) {
-            users.forEach(element => {
-                for (let index = 0; index < element.contacts.length; index++) {
-                    if (element.contacts[index] == oldContactInfo) {
-                        element.contacts[index] = updatedContact;
+function updateContact() {
+    const updatedContact = getContactData();
+    contactAddressValid(updateContact.street, updateContact.house, updateContact.city).then(valid => {
+        if (valid) {
+            if (activeUser.admin) {
+                users.forEach(element => {
+                    for (let index = 0; index < element.contacts.length; index++) {
+                        if (element.contacts[index] == oldContactInfo) {
+                            element.contacts[index] = updatedContact;
+                            disableUpdateView();
+                            enableAdminView();
+                        }
+                    }
+                });
+            }
+            else {
+                for (let index = 0; index < activeUser.contacts.length; index++) {
+                    if (activeUser.contacts[index] == oldContactInfo) {
+                        activeUser.contacts[index] = updatedContact;
                         disableUpdateView();
                         enableAdminView();
                     }
                 }
-            });
-        }
-        else {
-            for (let index = 0; index < activeUser.contacts.length; index++) {
-                if (activeUser.contacts[index] == oldContactInfo) {
-                    activeUser.contacts[index] = updatedContact;
-                    disableUpdateView();
-                    enableAdminView();
-                }
             }
+        } else {
+            alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
         }
-    } else {
-        alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
-    }
+    });
 
-    
 }
 
 function getContactData() {
@@ -295,7 +309,6 @@ function getContactDataNewContact() {
     let email = document.getElementById('email').value;
     let other = document.getElementById('other').value;
     let private = document.getElementById('privatebox').checked;
-
     let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
     return contact;
 
@@ -313,47 +326,47 @@ function showAddDialog() {
 }
 
 function addContact() {
-    let newContact = getContactDataNewContact();
-    if(contactAddressValid(newContact)){
-        if (activeUser.admin == true) {
-            let userSelection = document.getElementById('users').value;
-            users.forEach(element => {
-                if (element.username == userSelection) {
-                    element.contacts.push(newContact);
-                }
-            });
+    const newContact = getContactDataNewContact();
+    contactAddressValid(newContact.street, newContact.house, newContact.city).then(valid => {
+        if (valid) {
+            if (activeUser.admin == true) {
+                let userSelection = document.getElementById('users').value;
+                users.forEach(element => {
+                    if (element.username == userSelection) {
+                        element.contacts.push(newContact);
+                    }
+                });
+            } else {
+                activeUser.contacts.push(newContact);
+            }
+            disableAddnew_dialog();
+            enableAdminView();
         } else {
-            activeUser.contacts.push(newContact);
+            alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
         }
-        disableAddnew_dialog();
-        enableAdminView();   
-    }else {
-        alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
-    }
-
+    });
 }
 
 function greeting() {
     let title = document.getElementById('greeting').innerHTML = "Hallo " + activeUser.username;
 }
 
-async function contactAddressValid (contact){
-
-/*
-    const response = await ('https://nominatim.openstreetmap.org/search.php?q=' + contact.street + '%20' + contact.house + '%20' + contact.postcode + '&polygon_geojson=1&format=jsonv2');
-    const json = await response.json();
-    console.log(json.length);
-    return json.length>0;
-    */
-    
-    const request = new Request('https://nominatim.openstreetmap.org/search.php?q=' + contact.street + '%20' + contact.house + '%20' + contact.postcode + '&polygon_geojson=1&format=jsonv2');
+async function contactAddressValid(street, house, city) {
+    let methodstreet = street;
+    let methodhouse = house;
+    let methodcity = city;
+    let call = "https://api.tomtom.com/search/2/geocode/" + methodstreet + "%20" + methodhouse + "%20" + methodcity + ".json?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
+    const request = new Request(call);
     const url = request.url;
     const method = request.method;
-    await fetch(request)
-        .then(response => response.json())
-        .then(json => {
-            let lenghtbiggerthanzero=json.length<0;
-            return lenghtbiggerthanzero;
-        });
-    
+    let valid = false;
+    const response = await fetch(call);
+    const json = await(response.json());
+    valid = await json.results.forEach(result => {
+        if (result.type == "Point Address") {
+            console.log('point address found, address is valid');
+            return true;
+        };
+    });
+    return valid;
 }
