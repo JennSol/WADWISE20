@@ -52,7 +52,7 @@ function authenticate(username, password) {
     //hardcoded login data, normally we would call our backend here
     let authenticated = false;
     users.forEach(element => {
-        if (username == element.username && password == element.password) {
+        if (!authenticated && username == element.username && password == element.password) {
             activeUser = element;
             authenticated = true;
         }
@@ -123,10 +123,8 @@ function addContactToContactList(counter, element) {
     contact_Map.set(counter, element);
     let li = document.createElement("li");
     let contactInfo = document.createTextNode(element.firstName + " " + element.lastName);
-    let call = "https://api.tomtom.com/search/2/geocode/" + element.street + "%20" + element.house + "%20" + element.city + ".json?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
+    let call = "https://api.tomtom.com/search/2/geocode/" + element.street + "%20" + element.house + "%20" + element.city + ".json?limit=1?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
     const request = new Request(call);
-    const url = request.url;
-    const method = request.method;
     removeAllMarkersFromMap();
     fetch(request)
         .then(response => response.json())
@@ -141,12 +139,24 @@ function addContactToContactList(counter, element) {
                 };
             });
         });
-    const credentials = request.credentials;
     li.appendChild(contactInfo);
     li.id = counter;
     li.addEventListener("click", function (event) {
         id = event.target.id;
         openUpdateScreen(id);
+    });
+    li.addEventListener("mouseover", function (event) {
+        id = event.target.id;
+        markers[id].bindPopup('<b>' + element.firstName + " " + element.lastName + "</b><br>" + element.street + " " + element.house + ", " + element.postcode).openPopup();
+        console.log('mouse over id: '+id);
+        console.log('markers['+id+']: '+markers[id]);
+
+    });
+    li.addEventListener("mouseout", function (event) {
+        id = event.target.id;
+        markers[id].closePopup();
+        console.log('mouse out id: '+id);
+        console.log('markers['+id+']: '+markers[id]);
     });
     contactList.appendChild(li);
 
@@ -156,6 +166,7 @@ function removeAllMarkersFromMap() {
     markers.forEach(element => {
         mymap.removeLayer(element);
     });
+    markers = new Array();
 }
 
 function showMyContacts() {
@@ -315,7 +326,6 @@ function getContactDataNewContact() {
     let private = document.getElementById('privatebox').checked;
     let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
     return contact;
-
 }
 
 function showAddDialog() {
