@@ -2,8 +2,12 @@ var mymap = L.map('map').setView([52.456009, 13.527571], 14);
 var contact_Map = new Map();
 var activeUser;
 var oldContactInfo;
-
+let users = generateUsers();
 var markers = new Array();
+let neumann = new Contact(null, 'female', 'Susi', 'Neumann', 'Landsberger Allee', 320, 10365, 'Berlin', 'Deutschland', 'Neumann@gmail.de', null, false);
+let schuster = new Contact(null, 'male', 'Robert', 'Schuster', 'Oberfeldstraße', 91, 12683, 'Berlin', 'Deutschland', 'Schuster@hotmail.de', null, true);
+let mayer = new Contact(null, 'female', 'Anne', 'Mayer', 'Bernauer Str.', 50, 10435, 'Berlin', 'Deutschland', 'Mayer@outlook.de', null, false);
+let mueller = new Contact(null, 'male', 'Hans', 'Mueller', 'Berliner Allee', 261, 13088, 'Berlin', 'Deutschland', 'Mueller@mail.de', null, true);
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -29,18 +33,12 @@ function Contact(title, gender, firstName, lastName, street, house, postcode, ci
     this.private = private;
 }
 
-
-let neumann = new Contact(null, 'female', 'Susi', 'Neumann', 'Landsberger Allee', 320, 10365, 'Berlin', 'Deutschland', 'Neumann@gmail.de', null, false);
-let schuster = new Contact(null, 'male', 'Robert', 'Schuster', 'Oberfeldstraße', 91, 12683, 'Berlin', 'Deutschland', 'Schuster@hotmail.de', null, true);
-let mayer = new Contact(null, 'female', 'Anne', 'Mayer', 'Bernauer Str.', 50, 10435, 'Berlin', 'Deutschland', 'Mayer@outlook.de', null, false);
-let mueller = new Contact(null, 'male', 'Hans', 'Mueller', 'Berliner Allee', 261, 13088, 'Berlin', 'Deutschland', 'Mueller@mail.de', null, true);
 function generateUsers() {
     let admina = new User('Admina', 'abc', [mueller, neumann], true);
     let normalo = new User('Normalo', 'abc', [schuster, mayer], false);
     return [admina, normalo];
 }
 
-let users = generateUsers();
 function User(username, password, contacts, admin) {
     this.username = username;
     this.password = password;
@@ -73,7 +71,6 @@ function loginSuccessful() {
 function disableLoginView() {
     loginview = document.getElementById('login_view');
     loginview.style.display = 'none';
-
 }
 
 function enableAdminView() {
@@ -150,7 +147,6 @@ function addContactToContactList(counter, element) {
         markers[id].bindPopup('<b>' + element.firstName + " " + element.lastName + "</b><br>" + element.street + " " + element.house + ", " + element.postcode).openPopup();
         console.log('mouse over id: '+id);
         console.log('markers['+id+']: '+markers[id]);
-
     });
     li.addEventListener("mouseout", function (event) {
         id = event.target.id;
@@ -159,7 +155,6 @@ function addContactToContactList(counter, element) {
         console.log('markers['+id+']: '+markers[id]);
     });
     contactList.appendChild(li);
-
 }
 
 function removeAllMarkersFromMap() {
@@ -240,7 +235,6 @@ function openUpdateScreen(id) {
 
 async function updateContact() {
     const updatedContact = getContactData();
-
     const valid = await contactAddressValid(updatedContact.street, updatedContact.house, updatedContact.city)
     if (valid) {
         if (activeUser.admin) {
@@ -362,7 +356,7 @@ async function addContact() {
 }
 
 function greeting() {
-    let title = document.getElementById('greeting').innerHTML = "Hallo " + activeUser.username;
+    document.getElementById('greeting').innerHTML = "Hallo " + activeUser.username;
 }
 
 async function contactAddressValid(street, house, city) {
@@ -370,9 +364,6 @@ async function contactAddressValid(street, house, city) {
     let methodhouse = house;
     let methodcity = city;
     let call = "https://api.tomtom.com/search/2/geocode/" + methodstreet + "%20" + methodhouse + "%20" + methodcity + ".json?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
-    const request = new Request(call);
-    const url = request.url;
-    const method = request.method;
     let valid = false;
     const response = await fetch(call);
     const json = await (response.json());
