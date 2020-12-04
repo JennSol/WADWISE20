@@ -331,9 +331,12 @@ function getContactDataNewContact() {
 function showAddDialog() {
     disableAdminView();
     enableAddnew_dialog();
+    let userSelection = document.getElementById('users');
     if (activeUser.admin == true) {
-        let userSelection = document.getElementById('users');
         userSelection.style.display = 'initial';
+    }
+    else{
+        userSelection.style.display = 'none';
     }
 }
 
