@@ -3,7 +3,7 @@ var contact_Map = new Map();
 var activeUser;
 var oldContactInfo;
 
-var marker = new Array();
+var markers = new Array();
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -12,7 +12,6 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     tileSize: 512,
     zoomOffset: -1,
     accessToken: 'pk.eyJ1Ijoia2Fyc3RlbmFic2NoaWVkIiwiYSI6ImNrZ210OGRzaDF1eTAydHRldzdzbTZ0MG8ifQ.Y8abAkOxDNR_Am3Ij1GNzw'
-
 }).addTo(mymap);
 
 function Contact(title, gender, firstName, lastName, street, house, postcode, city, country, email, other, private) {
@@ -136,7 +135,7 @@ function addContactToContactList(counter, element) {
             json.results.forEach(result => {
                 if (result.type == "Point Address" && !contactAddedToMap) {
                     let newMarker = L.marker([parseFloat(result.position.lat), parseFloat(result.position.lon)]);
-                    marker.push(newMarker);
+                    markers.push(newMarker);
                     newMarker.addTo(mymap).bindPopup('<b>' + element.firstName + " " + element.lastName + "</b><br>" + element.street + " " + element.house + ", " + element.postcode);
                     contactAddedToMap = true;
                 };
@@ -154,7 +153,7 @@ function addContactToContactList(counter, element) {
 }
 
 function removeAllMarkersFromMap() {
-    marker.forEach(element => {
+    markers.forEach(element => {
         mymap.removeLayer(element);
     });
 }
