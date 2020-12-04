@@ -1,9 +1,9 @@
 var mymap = L.map('map').setView([52.456009, 13.527571], 14);
-var marker = L.marker([52.456009, 13.527571]).addTo(mymap);
 var contact_Map = new Map();
 var activeUser;
 var oldContactInfo;
 
+var markers = new Array();
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -12,7 +12,6 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     tileSize: 512,
     zoomOffset: -1,
     accessToken: 'pk.eyJ1Ijoia2Fyc3RlbmFic2NoaWVkIiwiYSI6ImNrZ210OGRzaDF1eTAydHRldzdzbTZ0MG8ifQ.Y8abAkOxDNR_Am3Ij1GNzw'
-
 }).addTo(mymap);
 
 function Contact(title, gender, firstName, lastName, street, house, postcode, city, country, email, other, private) {
@@ -51,12 +50,18 @@ function User(username, password, contacts, admin) {
 
 function authenticate(username, password) {
     //hardcoded login data, normally we would call our backend here
+    let authenticated = false;
     users.forEach(element => {
-        if (username == element.username && password == element.password) {
+        if (!authenticated && username == element.username && password == element.password) {
             activeUser = element;
-            loginSuccessful();
+            authenticated = true;
         }
     });
+    if(authenticated){
+        loginSuccessful();
+    }else {
+        alert('Benutzername oder Passwort inkorrekt');
+    }
 }
 
 function loginSuccessful() {
@@ -118,22 +123,58 @@ function addContactToContactList(counter, element) {
     contact_Map.set(counter, element);
     let li = document.createElement("li");
     let contactInfo = document.createTextNode(element.firstName + " " + element.lastName);
+    let call = "https://api.tomtom.com/search/2/geocode/" + element.street + "%20" + element.house + "%20" + element.city + ".json?limit=1?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
+    const request = new Request(call);
+    removeAllMarkersFromMap();
+    fetch(request)
+        .then(response => response.json())
+        .then(json => {
+            let contactAddedToMap = false;
+            json.results.forEach(result => {
+                if (result.type == "Point Address" && !contactAddedToMap) {
+                    let newMarker = L.marker([parseFloat(result.position.lat), parseFloat(result.position.lon)]);
+                    markers.push(newMarker);
+                    newMarker.addTo(mymap).bindPopup('<b>' + element.firstName + " " + element.lastName + "</b><br>" + element.street + " " + element.house + ", " + element.postcode);
+                    contactAddedToMap = true;
+                };
+            });
+        });
     li.appendChild(contactInfo);
     li.id = counter;
     li.addEventListener("click", function (event) {
         id = event.target.id;
         openUpdateScreen(id);
     });
+    li.addEventListener("mouseover", function (event) {
+        id = event.target.id;
+        markers[id].bindPopup('<b>' + element.firstName + " " + element.lastName + "</b><br>" + element.street + " " + element.house + ", " + element.postcode).openPopup();
+        console.log('mouse over id: '+id);
+        console.log('markers['+id+']: '+markers[id]);
+
+    });
+    li.addEventListener("mouseout", function (event) {
+        id = event.target.id;
+        markers[id].closePopup();
+        console.log('mouse out id: '+id);
+        console.log('markers['+id+']: '+markers[id]);
+    });
     contactList.appendChild(li);
 
 }
 
+function removeAllMarkersFromMap() {
+    markers.forEach(element => {
+        mymap.removeLayer(element);
+    });
+    markers = new Array();
+}
 
 function showMyContacts() {
     clearContactList();
     let counter = 0;
     contact_Map.clear();
     contactList = document.getElementById('contact_list');
+    removeAllMarkersFromMap();
     activeUser.contacts.forEach(element => {
         addContactToContactList(counter, element);
         counter++;
@@ -145,6 +186,7 @@ function showAllContacts() {
     let counter = 0;
     contact_Map.clear();
     contactList = document.getElementById('contact_list');
+    removeAllMarkersFromMap();
     users.forEach(user => {
         user.contacts.forEach(element => {
             if (isMyContact(element) == true || !element.private || activeUser.admin && element.private) {
@@ -196,27 +238,33 @@ function openUpdateScreen(id) {
     }
 }
 
-function updateContact() {
-    updatedContact = getContactData();
-    if (activeUser.admin) {
-        users.forEach(element => {
-            for (let index = 0; index < element.contacts.length; index++) {
-                if (element.contacts[index] == oldContactInfo) {
-                    element.contacts[index] = updatedContact;
+async function updateContact() {
+    const updatedContact = getContactData();
+
+    const valid = await contactAddressValid(updatedContact.street, updatedContact.house, updatedContact.city)
+    if (valid) {
+        if (activeUser.admin) {
+            users.forEach(element => {
+                for (let index = 0; index < element.contacts.length; index++) {
+                    if (element.contacts[index] == oldContactInfo) {
+                        element.contacts[index] = updatedContact;
+                        disableUpdateView();
+                        enableAdminView();
+                    }
+                }
+            });
+        }
+        else {
+            for (let index = 0; index < activeUser.contacts.length; index++) {
+                if (activeUser.contacts[index] == oldContactInfo) {
+                    activeUser.contacts[index] = updatedContact;
                     disableUpdateView();
                     enableAdminView();
                 }
             }
-        });
-    }
-    else {
-        for (let index = 0; index < activeUser.contacts.length; index++) {
-            if (activeUser.contacts[index] == oldContactInfo) {
-                activeUser.contacts[index] = updatedContact;
-                disableUpdateView();
-                enableAdminView();
-            }
         }
+    } else {
+        alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
     }
 }
 
@@ -276,13 +324,9 @@ function getContactDataNewContact() {
     let email = document.getElementById('email').value;
     let other = document.getElementById('other').value;
     let private = document.getElementById('privatebox').checked;
-
-        let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
-        return contact;
- 
+    let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
+    return contact;
 }
-
-
 
 function showAddDialog() {
     disableAdminView();
@@ -293,23 +337,46 @@ function showAddDialog() {
     }
 }
 
-function addContact() {
-    let newContact = getContactDataNewContact();
-    if (activeUser.admin == true) {
-        let userSelection = document.getElementById('users').value;
-        users.forEach(element => {
-            if (element.username == userSelection) {
-                element.contacts.push(newContact);
-            }
-        });
+async function addContact() {
+    const newContact = getContactDataNewContact();
+    const valid = await contactAddressValid(newContact.street, newContact.house, newContact.city);
+    if (valid) {
+        if (activeUser.admin == true) {
+            let userSelection = document.getElementById('users').value;
+            users.forEach(element => {
+                if (element.username == userSelection) {
+                    element.contacts.push(newContact);
+                }
+            });
+        } else {
+            activeUser.contacts.push(newContact);
+        }
+        disableAddnew_dialog();
+        enableAdminView();
     } else {
-        activeUser.contacts.push(newContact);
+        alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
     }
-    disableAddnew_dialog();
-    enableAdminView();
 }
 
 function greeting() {
     let title = document.getElementById('greeting').innerHTML = "Hallo " + activeUser.username;
 }
 
+async function contactAddressValid(street, house, city) {
+    let methodstreet = street;
+    let methodhouse = house;
+    let methodcity = city;
+    let call = "https://api.tomtom.com/search/2/geocode/" + methodstreet + "%20" + methodhouse + "%20" + methodcity + ".json?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
+    const request = new Request(call);
+    const url = request.url;
+    const method = request.method;
+    let valid = false;
+    const response = await fetch(call);
+    const json = await (response.json());
+    await json.results.forEach(result => {
+        if (result.type == "Point Address") {
+            valid = true;
+        };
+    });
+    return valid;
+}
