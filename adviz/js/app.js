@@ -2,7 +2,7 @@ var mymap = L.map('map').setView([52.456009, 13.527571], 14);
 var contact_Map = new Map();
 var activeUser;
 var oldContactInfo;
-var markers = new Array();
+var markers = new Map();
 let neumann = new Contact(null, 'female', 'Susi', 'Neumann', 'Landsberger Allee', 320, 10365, 'Berlin', 'Deutschland', 'Neumann@gmail.de', null, false);
 let schuster = new Contact(null, 'male', 'Robert', 'Schuster', 'Oberfeldstraße', 91, 12683, 'Berlin', 'Deutschland', 'Schuster@hotmail.de', null, true);
 let mayer = new Contact(null, 'female', 'Anne', 'Mayer', 'Bernauer Str.', 50, 10435, 'Berlin', 'Deutschland', 'Mayer@outlook.de', null, false);
@@ -118,11 +118,13 @@ function logout() {
 
 function addContactToContactList(counter, element) {
     contact_Map.set(counter, element);
-    let li = document.createElement("li");
-    let contactInfo = document.createTextNode(element.firstName + " " + element.lastName);
+    let template = document.getElementById('contact-template');
+    let entry = template.content;
+    let li = entry.querySelector('li');
+    li.id = counter;
+    entry.querySelector('a').innerText = element.firstName + " " + element.lastName;
     let call = "https://api.tomtom.com/search/2/geocode/" + element.street + "%20" + element.house + "%20" + element.city + ".json?limit=1?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
     const request = new Request(call);
-    removeAllMarkersFromMap();
     fetch(request)
         .then(response => response.json())
         .then(json => {
@@ -130,68 +132,75 @@ function addContactToContactList(counter, element) {
             json.results.forEach(result => {
                 if (result.type == "Point Address" && !contactAddedToMap) {
                     let newMarker = L.marker([parseFloat(result.position.lat), parseFloat(result.position.lon)]);
-                    markers.push(newMarker);
+                    markers.set(parseInt(counter), newMarker);
                     newMarker.addTo(mymap).bindPopup('<b>' + element.firstName + " " + element.lastName + "</b><br>" + element.street + " " + element.house + ", " + element.postcode);
                     contactAddedToMap = true;
                 };
             });
         });
-    li.appendChild(contactInfo);
-    li.id = counter;
-    li.addEventListener("click", function (event) {
-        id = event.target.id;
-        openUpdateScreen(id);
-    });
-    li.addEventListener("mouseover", function (event) {
-        id = event.target.id;
-        markers[id].bindPopup('<b>' + element.firstName + " " + element.lastName + "</b><br>" + element.street + " " + element.house + ", " + element.postcode).openPopup();
-        console.log('mouse over id: '+id);
-        console.log('markers['+id+']: '+markers[id]);
-    });
-    li.addEventListener("mouseout", function (event) {
-        id = event.target.id;
-        markers[id].closePopup();
-        console.log('mouse out id: '+id);
-        console.log('markers['+id+']: '+markers[id]);
-    });
-    contactList.appendChild(li);
+    document.getElementById('contact_list').appendChild(entry.cloneNode(true)); 
 }
 
 function removeAllMarkersFromMap() {
     markers.forEach(element => {
         mymap.removeLayer(element);
     });
-    markers = new Array();
+    markers.clear();
 }
 
 function showMyContacts() {
     clearContactList();
     let counter = 0;
     contact_Map.clear();
-    contactList = document.getElementById('contact_list');
+    let contactList = document.getElementById('contact_list');
     removeAllMarkersFromMap();
     activeUser.contacts.forEach(element => {
         addContactToContactList(counter, element);
+        addEventListenersToContactListEntry(counter, element);
         counter++;
     });
 }
 
+function addEventListenersToContactListEntry(id, contact){
+    let listitems = document.getElementById('contact_list').getElementsByTagName('li');
+    let li = listitems[id];
+    li.addEventListener("click", function (event) {
+        openUpdateScreen(li.id);
+    });
+    li.addEventListener("mouseover", function (event) {
+        console.log(event.target);
+        if(event.target.id==undefined){
+            console.log('getting toplevel id');
+            id = event.target.parent('.entryTopLevel').id;
+        }
+        let marker = markers.get(parseInt(id));
+        marker.bindPopup('<b>' + contact.firstName+ " " + contact.lastName  +"</b><br>" + contact.street + " " + contact.house + ", " + contact.postcode).openPopup();
+    });
+    li.addEventListener("mouseleave", function (event) {
+        console.log(event.target);
+        if(event.target.id==undefined ){
+            id = event.target.parent('.entryTopLevel').id;
+        }
+        let marker = markers.get(parseInt(id)); 
+        marker.closePopup();                     
+    });
+ 
+}
 function showAllContacts() {
     clearContactList();
     let counter = 0;
     contact_Map.clear();
-    contactList = document.getElementById('contact_list');
     removeAllMarkersFromMap();
     users.forEach(user => {
         user.contacts.forEach(element => {
             if (isMyContact(element) == true || !element.private || activeUser.admin && element.private) {
                 addContactToContactList(counter, element);
+                addEventListenersToContactListEntry(counter, element);
                 counter++;
             }
         });
     });
 }
-
 
 function isMyContact(contact) {
     for (let index = 0; index < activeUser.contacts.length; index++) {
@@ -210,26 +219,27 @@ function clearContactList() {
 
 function openUpdateScreen(id) {
     let contactInfo = contact_Map.get(parseInt(id));
-    if (isMyContact(contactInfo) == true || activeUser.admin == true) {
-        let updateScreen = document.getElementById('delete_update_screen');
-        disableAdminView();
-        updateScreen.style.display = 'initial';
-        document.getElementById('title_d').value = contactInfo.title;
-        document.getElementById('genders_d').value = contactInfo.gender;
-        document.getElementById('prename_d').value = contactInfo.firstName;
-        document.getElementById('name_d').value = contactInfo.lastName;
-        document.getElementById('street_d').value = contactInfo.street;
-        document.getElementById('house_d').value = contactInfo.house;
-        document.getElementById('postcode_d').value = contactInfo.postcode;
-        document.getElementById('city_d').value = contactInfo.city;
-        document.getElementById('county_d').value = contactInfo.country;
-        document.getElementById('email_d').value = contactInfo.email;
-        document.getElementById('other_d').value = contactInfo.other;
-        document.getElementById('privateBox_d').value = contactInfo.private;
-
-        oldContactInfo = contactInfo;
-    } else {
-        alert('Keine Berechtigung zum Bearbeiten oder Löschen!')
+    if(contactInfo!=undefined){
+        if (isMyContact(contactInfo) == true || activeUser.admin == true) {
+            let updateScreen = document.getElementById('delete_update_screen');
+            disableAdminView();
+            updateScreen.style.display = 'initial';
+            document.getElementById('title_d').value = contactInfo.title;
+            document.getElementById('genders_d').value = contactInfo.gender;
+            document.getElementById('prename_d').value = contactInfo.firstName;
+            document.getElementById('name_d').value = contactInfo.lastName;
+            document.getElementById('street_d').value = contactInfo.street;
+            document.getElementById('house_d').value = contactInfo.house;
+            document.getElementById('postcode_d').value = contactInfo.postcode;
+            document.getElementById('city_d').value = contactInfo.city;
+            document.getElementById('county_d').value = contactInfo.country;
+            document.getElementById('email_d').value = contactInfo.email;
+            document.getElementById('other_d').value = contactInfo.other;
+            document.getElementById('privateBox_d').value = contactInfo.private;
+            oldContactInfo = contactInfo;
+        } else {
+            alert('Keine Berechtigung zum Bearbeiten oder Löschen!')
+        }    
     }
 }
 
@@ -263,7 +273,6 @@ async function updateContact() {
 }
 
 function getContactData() {
-
     let title = document.getElementById('title_d').value;
     let gender = document.getElementById('genders_d').value;
     let firstname = document.getElementById('prename_d').value;
