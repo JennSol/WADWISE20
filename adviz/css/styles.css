@@ -5,6 +5,11 @@ body {
 	background-color: #FAFAFA;
 }
 
+.dark-mode {
+	background-color: black;
+	color: white;
+}
+
 :root {
 	--border-radius: 20px;
 }
@@ -104,6 +109,28 @@ ul li:hover {
 	color: white;
 	border-radius: var(--border-radius);
 }
+
+li i{
+	text-decoration: none;
+	color: #000;
+
+	-webkit-transition: font-size 0.3s ease, color 0.3s ease;
+	-moz-transition: font-size 0.3s ease, color 0.3s ease;
+	-o-transition: font-size 0.3s ease, color 0.3s ease;
+	-ms-transition: font-size 0.3s ease, color 0.3s ease;
+	transition: font-size 0.3s ease, color 0.3s ease;
+	display: right;
+	position: relative;
+}
+
+li i[icontype='delete']:hover{
+	color: red;
+}
+
+li i[icontype='edit']:hover{
+	color: lightblue;
+}
+
 
 input[type=text],
 select {

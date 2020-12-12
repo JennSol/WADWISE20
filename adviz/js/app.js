@@ -34,8 +34,8 @@ function Contact(title, gender, firstName, lastName, street, house, postcode, ci
 }
 
 function generateUsers() {
-    let admina = new User('Admina', 'abc', [mueller, neumann], true);
-    let normalo = new User('Normalo', 'abc', [schuster, mayer], false);
+    let admina = new User('Admina', 'a', [mueller, neumann], true);
+    let normalo = new User('Normalo', 'a', [schuster, mayer], false);
     return [admina, normalo];
 }
 
@@ -55,9 +55,9 @@ function authenticate(username, password) {
             authenticated = true;
         }
     });
-    if(authenticated){
+    if (authenticated) {
         loginSuccessful();
-    }else {
+    } else {
         alert('Benutzername oder Passwort inkorrekt');
     }
 }
@@ -138,7 +138,7 @@ function addContactToContactList(counter, element) {
                 };
             });
         });
-    document.getElementById('contact_list').appendChild(entry.cloneNode(true)); 
+    document.getElementById('contact_list').appendChild(entry.cloneNode(true));
 }
 
 function removeAllMarkersFromMap() {
@@ -161,30 +161,39 @@ function showMyContacts() {
     });
 }
 
-function addEventListenersToContactListEntry(id, contact){
+function addEventListenersToContactListEntry(id, contact) {
     let listitems = document.getElementById('contact_list').getElementsByTagName('li');
     let li = listitems[id];
     li.addEventListener("click", function (event) {
-        openUpdateScreen(li.id);
+        if (event.target.icontype == 'delete') {
+            if (confirm(contact.firstName + ' ' + contact.lastName + ' löschen?')) {
+                deleteContactById(id);
+            }        
+        } else if (event.target.icontype =='edit'){
+            openUpdateScreen(id);
+        } 
+         else {
+            openUpdateScreen(li.id);
+        }
     });
     li.addEventListener("mouseover", function (event) {
-        console.log(event.target);
-        if(event.target.id==undefined){
+        if (event.target.id == undefined) {
             console.log('getting toplevel id');
             id = event.target.parent('.entryTopLevel').id;
         }
         let marker = markers.get(parseInt(id));
-        marker.bindPopup('<b>' + contact.firstName+ " " + contact.lastName  +"</b><br>" + contact.street + " " + contact.house + ", " + contact.postcode).openPopup();
+        marker.bindPopup('<b>' + contact.firstName + " " + contact.lastName + "</b><br>" + contact.street + " " + contact.house + ", " + contact.postcode).openPopup();
+        mymap.fitBounds(L.latLngBounds(Array.from(markers.values())));
     });
     li.addEventListener("mouseleave", function (event) {
-        console.log(event.target);
-        if(event.target.id==undefined ){
+        if (event.target.id == undefined) {
             id = event.target.parent('.entryTopLevel').id;
         }
-        let marker = markers.get(parseInt(id)); 
-        marker.closePopup();                     
+        let marker = markers.get(parseInt(id));
+        marker.closePopup();
     });
- 
+
+
 }
 function showAllContacts() {
     clearContactList();
@@ -219,7 +228,7 @@ function clearContactList() {
 
 function openUpdateScreen(id) {
     let contactInfo = contact_Map.get(parseInt(id));
-    if(contactInfo!=undefined){
+    if (contactInfo != undefined) {
         if (isMyContact(contactInfo) == true || activeUser.admin == true) {
             let updateScreen = document.getElementById('delete_update_screen');
             disableAdminView();
@@ -239,7 +248,7 @@ function openUpdateScreen(id) {
             oldContactInfo = contactInfo;
         } else {
             alert('Keine Berechtigung zum Bearbeiten oder Löschen!')
-        }    
+        }
     }
 }
 
@@ -313,6 +322,11 @@ function deleteContact() {
     }
 }
 
+function deleteContactById(id) {
+    oldContactInfo = contact_Map.get(id);
+    deleteContact();    
+}
+
 function getContactDataNewContact() {
 
     let title = document.getElementById('title').value;
@@ -338,7 +352,7 @@ function showAddDialog() {
     if (activeUser.admin == true) {
         userSelection.style.display = 'initial';
     }
-    else{
+    else {
         userSelection.style.display = 'none';
     }
 }

@@ -42,6 +42,7 @@
       </div>
       <div class="footer">
         <div id="menu">
+          <button onclick="myFunction()">Toggle dark mode</button>
           <button id="button_showmine" class="button"  onclick="showMyContacts()">
             Zeige meine
           </button>
@@ -135,7 +136,8 @@
   <template id='contact-template'>
     <li id='' class='entryTopLevel'>
       <a></a>
-      <i class="fas fa-trash"></i>
+      <i icontype='delete' class="far fa-trash-alt"></i>
+      <i icontype='edit' class="far fa-edit"></i>
     </li>
   </template>
   <script type="text/javascript" src="js/app.js"></script>
