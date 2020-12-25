@@ -5,11 +5,6 @@ body {
 	background-color: #FAFAFA;
 }
 
-.dark-mode {
-	background-color: black;
-	color: white;
-}
-
 :root {
 	--border-radius: 20px;
 }
@@ -119,8 +114,10 @@ li i{
 	-o-transition: font-size 0.3s ease, color 0.3s ease;
 	-ms-transition: font-size 0.3s ease, color 0.3s ease;
 	transition: font-size 0.3s ease, color 0.3s ease;
-	display: right;
+	display: block;
+	float: right;
 	position: relative;
+
 }
 
 li i[icontype='delete']:hover{

@@ -42,7 +42,6 @@
       </div>
       <div class="footer">
         <div id="menu">
-          <button onclick="myFunction()">Toggle dark mode</button>
           <button id="button_showmine" class="button"  onclick="showMyContacts()">
             Zeige meine
           </button>
@@ -57,7 +56,9 @@
     </div>
   </div>
   <div class="page" id="addnew_dialog">
-    <form class="form_dialog" id="form_addnew_dialog" onsubmit="addContact(); return false;">
+
+  <!--
+<form class="form_dialog" id="form_addnew_dialog" onsubmit="addContact(); return false;">
       <label for="title">Titel</label>
       <input type="text" id="title" name="title">
       <label for="genders">Geschlecht</label>
@@ -85,16 +86,10 @@
       <input type="text" id="email" name="email">
       <label for="other">Sonstiges</label>
       <input type="text" id="other" name="other">
-      <div class="bar">
-        <label for="privateBox">Privat</label>
-        <input type="checkbox" id="privatebox" name="privatebox" checked>
-        <button class="button" type="submit" id="add_button" value="add" name="add_button" >Hinzufügen </button>
-        <select id="users" name="users">
-          <option value="Normalo">Normalo</option>
-        <option value="Admina">Admina</option>
-        </select>
-      </div>
+      <div class="bar"></div>
     </form>
+  -->
+    
   </div>
   <div class="page" id="delete_update_screen">
     <form class="form_dialog" onsubmit="updateContact();return false">
@@ -139,6 +134,53 @@
       <i icontype='delete' class="far fa-trash-alt"></i>
       <i icontype='edit' class="far fa-edit"></i>
     </li>
+  </template>
+  <template id='add-edit-delete-dialog-template'>
+      <form class="form_dialog" onsubmit="">
+        <label for="title">Titel</label>
+        <input type="text" id="title" name="title_d">
+        <label for="genders">Geschlecht</label>
+        <select id="genders" name="genders_d">
+          <option value="none">keine Angabe</option>
+          <option value="diverse">divers</option>
+          <option value="male">männlich</option>
+          <option value="female">weiblich</option>
+        </select>
+        <label for="prename">Vorname*</label>
+        <input type="text" id="prename" name="prename" required>
+        <label for="name">Nachname*</label>
+        <input type="text" id="name" name="name" required>
+        <label for="street">Straße*</label>
+        <input type="text" id="street" name="street" required>
+        <label for="house">Hausnummer*</label>
+        <input type="text" id="house" name="number" required>
+        <label for="postcode">Postleitzahl*</label>
+        <input type="text" id="postcode" name="postcode" required>
+        <label for="city">Stadt*</label>
+        <input type="text" id="city" name="city" required>
+        <label for="country">Land*</label>
+        <input type="text" id="county" name="country" required>
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email">
+        <label for="other">Sonstiges</label>
+        <input type="text" id="other" name="other">
+        <div id="bar" class="bar"></div>
+      </form>
+  </template>
+  <template id='bar-update-delete-template'>
+    <label for="privateBox">Privat</label>
+    <input type="checkbox" id="privateBox" name="privateBox" checked>
+    <button type="submit" class="button" id="update_button" value="update" name="update_button" >Bearbeiten</button>
+    <button  class="button" id="delete_button" value="delete" name="delete_button" onclick="deleteContact()">Löschen</button>
+  </template>
+  <template id='bar-add-template'>
+    <label for="privateBox">Privat</label>
+    <input type="checkbox" id="privatebox" name="privatebox" checked>
+    <button class="button" type="submit" id="add_button" value="add" name="add_button" >Hinzufügen </button>
+    <select id="users" name="users">
+      <option value="Normalo">Normalo</option>
+    <option value="Admina">Admina</option>
+    </select>
   </template>
   <script type="text/javascript" src="js/app.js"></script>
 </body>

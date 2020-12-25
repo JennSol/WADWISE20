@@ -94,7 +94,24 @@ function enableAddnew_dialog() {
     document.getElementById('addnew_dialog').style.display = 'initial';
 }
 
+function enableAddNewDialogTemplate(){
+    document.getElementById('addnew_dialog').style.display = 'initial';
+
+    let dialogTemplate = document.getElementById('add-edit-delete-dialog-template')
+    let dialog = dialogTemplate.content;
+    dialog.querySelector('.form_dialog').setAttribute('onsubmit', 'addContact(); return false;')
+    let barTemplateContent = document.getElementById('bar-add-template').content;    
+    let bar = dialog.querySelector('.bar');
+    bar.append(barTemplateContent);
+
+    document.getElementById('addnew_dialog').append(dialog.cloneNode(true));
+}
+
 function disableAddnew_dialog() {
+    let dialog = document.getElementById('addnew_dialog'); 
+    
+    dialog.removeChild(dialog.querySelector('.form_dialog'));
+
     document.getElementById('addnew_dialog').style.display = 'none';
 }
 
@@ -152,7 +169,6 @@ function showMyContacts() {
     clearContactList();
     let counter = 0;
     contact_Map.clear();
-    let contactList = document.getElementById('contact_list');
     removeAllMarkersFromMap();
     activeUser.contacts.forEach(element => {
         addContactToContactList(counter, element);
@@ -173,15 +189,15 @@ function addEventListenersToContactListEntry(id, contact) {
             openUpdateScreen(id);
         } 
          else {
-            openUpdateScreen(li.id);
+            openUpdateScreen(id);
         }
     });
     li.addEventListener("mouseover", function (event) {
         if (event.target.id == undefined) {
-            console.log('getting toplevel id');
+            //getting toplevel id
             id = event.target.parent('.entryTopLevel').id;
         }
-        let marker = markers.get(parseInt(id));
+        let marker = markers.get(id);
         marker.bindPopup('<b>' + contact.firstName + " " + contact.lastName + "</b><br>" + contact.street + " " + contact.house + ", " + contact.postcode).openPopup();
         mymap.fitBounds(L.latLngBounds(Array.from(markers.values())));
     });
@@ -189,7 +205,7 @@ function addEventListenersToContactListEntry(id, contact) {
         if (event.target.id == undefined) {
             id = event.target.parent('.entryTopLevel').id;
         }
-        let marker = markers.get(parseInt(id));
+        let marker = markers.get(id);
         marker.closePopup();
     });
 
@@ -347,7 +363,7 @@ function getContactDataNewContact() {
 
 function showAddDialog() {
     disableAdminView();
-    enableAddnew_dialog();
+    enableAddNewDialogTemplate();
     let userSelection = document.getElementById('users');
     if (activeUser.admin == true) {
         userSelection.style.display = 'initial';
@@ -359,7 +375,12 @@ function showAddDialog() {
 
 async function addContact() {
     const newContact = getContactDataNewContact();
-    const valid = await contactAddressValid(newContact.street, newContact.house, newContact.city);
+    let valid = false;
+    try{
+        valid = await contactAddressValid(newContact.street, newContact.house, newContact.city);
+    }catch{
+        valid = true;
+    }
     if (valid) {
         if (activeUser.admin == true) {
             let userSelection = document.getElementById('users').value;
