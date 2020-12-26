@@ -181,11 +181,12 @@ function addEventListenersToContactListEntry(id, contact) {
     let listitems = document.getElementById('contact_list').getElementsByTagName('li');
     let li = listitems[id];
     li.addEventListener("click", function (event) {
-        if (event.target.icontype == 'delete') {
+        console.log(event.target);
+        if (event.target.getAttribute('icontype') == 'delete') {
             if (confirm(contact.firstName + ' ' + contact.lastName + ' löschen?')) {
                 deleteContactById(id);
             }        
-        } else if (event.target.icontype =='edit'){
+        } else if (event.target.getAttribute('icontype') =='edit'){
             openUpdateScreen(id);
         } 
          else {
