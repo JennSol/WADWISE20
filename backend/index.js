@@ -1,25 +1,19 @@
 const express = require('express')
-
-const http = require('http')
-const fs = require('fs').promises;
+const path = require('path');
 
 const app = express()
 const port = 80
 
-app.use(express.static('../adviz'));
-
 app.get('/adviz/login', (req,res) =>{
-    fs.readFile('../adviz/index.html').then(contents=>{
-        res.setHeader("Content-Type", "text/html");
-            res.writeHead(200);
-            res.end(contents);
-    });
+    res.sendFile(path.resolve('../adviz/index.html'));
 });
 
-app.get('/adviz/contacts', (req, res) => {
-    //api call would be locahost:3000/adviz/contacts?userId=<user id here>
-    console.log(req.query.userId)
-    res.send('Hello '+ req.query.userId )
+app.get('/adviz/css/styles.css', (req,res) =>{
+    res.sendFile(path.resolve('../adviz/css/styles.css'));
+});
+
+app.get('/adviz/js/app.js', (req,res) =>{
+    res.sendFile(path.resolve('../adviz/js/app.js'));
 });
 
 app.listen(port, () => {
