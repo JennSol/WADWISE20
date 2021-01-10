@@ -94,22 +94,34 @@ function enableAddnew_dialog() {
     document.getElementById('addnew_dialog').style.display = 'initial';
 }
 
-function enableAddNewDialogTemplate(){
+function enableAddNewDialogTemplate() {
     document.getElementById('addnew_dialog').style.display = 'initial';
 
     let dialogTemplate = document.getElementById('add-edit-delete-dialog-template')
     let dialog = dialogTemplate.content;
     dialog.querySelector('.form_dialog').setAttribute('onsubmit', 'addContact(); return false;')
-    let barTemplateContent = document.getElementById('bar-add-template').content;    
+    let barTemplateContent = document.getElementById('bar-add-template').content;
     let bar = dialog.querySelector('.bar');
     bar.append(barTemplateContent);
+
+    dialog.querySelector('#title').value = '';
+    dialog.querySelector('#genders').value = '';
+    dialog.querySelector('#prename').value = '';
+    dialog.querySelector('#name').value = '';
+    dialog.querySelector('#street').value = '';
+    dialog.querySelector('#house').value = '';
+    dialog.querySelector('#postcode').value = '';
+    dialog.querySelector('#city').value = '';
+    dialog.querySelector('#county').value = '';
+    dialog.querySelector('#email').value = '';
+    dialog.querySelector('#other').value = '';
 
     document.getElementById('addnew_dialog').append(dialog.cloneNode(true));
 }
 
 function disableAddnew_dialog() {
-    let dialog = document.getElementById('addnew_dialog'); 
-    
+    let dialog = document.getElementById('addnew_dialog');
+
     dialog.removeChild(dialog.querySelector('.form_dialog'));
 
     document.getElementById('addnew_dialog').style.display = 'none';
@@ -184,11 +196,11 @@ function addEventListenersToContactListEntry(id, contact) {
         if (event.target.icontype == 'delete') {
             if (confirm(contact.firstName + ' ' + contact.lastName + ' löschen?')) {
                 deleteContactById(id);
-            }        
-        } else if (event.target.icontype =='edit'){
+            }
+        } else if (event.target.icontype == 'edit') {
             openUpdateScreen(id);
-        } 
-         else {
+        }
+        else {
             openUpdateScreen(id);
         }
     });
@@ -199,7 +211,6 @@ function addEventListenersToContactListEntry(id, contact) {
         }
         let marker = markers.get(id);
         marker.bindPopup('<b>' + contact.firstName + " " + contact.lastName + "</b><br>" + contact.street + " " + contact.house + ", " + contact.postcode).openPopup();
-        mymap.fitBounds(L.latLngBounds(Array.from(markers.values())));
     });
     li.addEventListener("mouseleave", function (event) {
         if (event.target.id == undefined) {
@@ -243,6 +254,51 @@ function clearContactList() {
 }
 
 function openUpdateScreen(id) {
+
+    let contactInfo = contact_Map.get(parseInt(id));
+    if (contactInfo != undefined) {
+        if (isMyContact(contactInfo) == true || activeUser.admin == true) {
+            disableAdminView();
+            
+            let childs = document.getElementById('delete_update_screen');
+            while (childs.firstChild) {
+                childs.removeChild(childs.lastChild);
+            }
+
+            document.getElementById('delete_update_screen').style.display = 'initial';
+            let dialogTemplate = document.getElementById('add-edit-delete-dialog-template');
+            let dialog = dialogTemplate.content;
+            dialog.querySelector('.form_dialog').setAttribute('onsubmit', 'updateContact();return false');
+            let barTemplateContent = document.getElementById('bar-add-template').content;
+            let bar = dialog.querySelector('.bar');
+            bar.append(barTemplateContent);
+            dialog.querySelector('#title').value = contactInfo.title;
+            dialog.querySelector('#genders').value = contactInfo.gender;
+            dialog.querySelector('#prename').value = contactInfo.firstName;
+            dialog.querySelector('#name').value = contactInfo.lastName;
+            dialog.querySelector('#street').value = contactInfo.street;
+            dialog.querySelector('#house').value = contactInfo.house;
+            dialog.querySelector('#postcode').value = contactInfo.postcode;
+            dialog.querySelector('#city').value = contactInfo.city;
+            dialog.querySelector('#county').value = contactInfo.country;
+            dialog.querySelector('#email').value = contactInfo.email;
+            dialog.querySelector('#other').value = contactInfo.other;
+            bar.querySelector('#privatebox').value = contactInfo.private;
+
+            oldContactInfo = contactInfo;
+
+            document.getElementById('delete_update_screen').append(dialog.cloneNode(true));
+
+        }
+        else {
+            alert('Keine Berechtigung zum Bearbeiten oder Löschen!')
+        }
+    }
+
+
+}
+
+function oldopenUpdateScreen(id) {
     let contactInfo = contact_Map.get(parseInt(id));
     if (contactInfo != undefined) {
         if (isMyContact(contactInfo) == true || activeUser.admin == true) {
@@ -298,18 +354,19 @@ async function updateContact() {
 }
 
 function getContactData() {
-    let title = document.getElementById('title_d').value;
-    let gender = document.getElementById('genders_d').value;
-    let firstname = document.getElementById('prename_d').value;
-    let lastName = document.getElementById('name_d').value;
-    let street = document.getElementById('street_d').value;
-    let house = parseInt(document.getElementById('house_d').value);
-    let postcode = parseInt(document.getElementById('postcode_d').value);
-    let city = document.getElementById('city_d').value;
-    let country = document.getElementById('county_d').value;
-    let email = document.getElementById('email_d').value;
-    let other = document.getElementById('other_d').value;
-    let private = document.getElementById('privateBox_d').checked;
+    let updateDialog = document.getElementById('delete_update_screen');
+    let title = updateDialog.querySelector('#title').value;
+    let gender = updateDialog.querySelector('#genders').value;
+    let firstname = updateDialog.querySelector('#prename').value;
+    let lastName = updateDialog.querySelector('#name').value;
+    let street = updateDialog.querySelector('#street').value;
+    let house = parseInt(updateDialog.querySelector('#house').value);
+    let postcode = parseInt(updateDialog.querySelector('#postcode').value);
+    let city = updateDialog.querySelector('#city').value;
+    let country = updateDialog.querySelector('#county').value;
+    let email = updateDialog.querySelector('#email').value;
+    let other = updateDialog.querySelector('#other').value;
+    let private = updateDialog.querySelector('#privatebox').checked;
 
     let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
     return contact;
@@ -340,7 +397,7 @@ function deleteContact() {
 
 function deleteContactById(id) {
     oldContactInfo = contact_Map.get(id);
-    deleteContact();    
+    deleteContact();
 }
 
 function getContactDataNewContact() {
@@ -376,9 +433,9 @@ function showAddDialog() {
 async function addContact() {
     const newContact = getContactDataNewContact();
     let valid = false;
-    try{
+    try {
         valid = await contactAddressValid(newContact.street, newContact.house, newContact.city);
-    }catch{
+    } catch {
         valid = true;
     }
     if (valid) {

@@ -60,43 +60,6 @@
   <div class="page" id="addnew_dialog">
   </div>
   <div class="page" id="delete_update_screen">
-    <form class="form_dialog" onsubmit="updateContact();return false">
-      <label for="title_d">Titel</label>
-      <input type="text" id="title_d" name="title_d">
-      <label for="genders_d">Geschlecht</label>
-      <select id="genders_d" name="genders_d">
-        <option value="none">keine Angabe</option>
-        <option value="diverse">divers</option>
-        <option value="male">männlich</option>
-        <option value="female">weiblich</option>
-      </select>
-      <label for="prename_d">Vorname*</label>
-      <input type="text" id="prename_d" name="prename_d" required>
-      <label for="name">Nachname*</label>
-      <input type="text" id="name_d" name="name_d" required>
-      <label for="street_d">Straße*</label>
-      <input type="text" id="street_d" name="street_d" required>
-      <label for="house">Hausnummer*</label>
-      <input type="text" id="house_d" name="number_d" required>
-      <label for="postcode_d">Postleitzahl*</label>
-      <input type="text" id="postcode_d" name="postcode_d" required>
-      <label for="city_d">Stadt*</label>
-      <input type="text" id="city_d" name="city_d" required>
-      <label for="country_d">Land*</label>
-      <input type="text" id="county_d" name="country_d" required>
-      <label for="email">Email</label>
-      <input type="text" id="email_d" name="email_d">
-      <label for="other_d">Sonstiges</label>
-      <input type="text" id="other_d" name="other_d">
-      <div id="bar_d" class="bar">
-        <label for="privateBox_d">Privat</label>
-        <input type="checkbox" id="privateBox_d" name="privateBox_d" checked>
-        <button type="submit" class="button" id="update_button_d" value="update"
-          name="update_button_d">Bearbeiten</button>
-        <button class="button" id="delete_button_d" value="delete" name="delete_button_d"
-          onclick="deleteContact()">Löschen</button>
-      </div>
-    </form>
   </div>
   <template id='contact-template'>
     <li id='' class='entryTopLevel'>
@@ -106,11 +69,11 @@
     </li>
   </template>
   <template id='add-edit-delete-dialog-template'>
-    <form class="form_dialog" onsubmit="">
+    <form id='form_dialog' class="form_dialog" onsubmit="">
       <label for="title">Titel</label>
-      <input type="text" id="title" name="title_d">
+      <input type="text" id="title" name="title">
       <label for="genders">Geschlecht</label>
-      <select id="genders" name="genders_d">
+      <select id="genders" name="genders">
         <option value="none">keine Angabe</option>
         <option value="diverse">divers</option>
         <option value="male">männlich</option>
@@ -147,7 +110,7 @@
   <template id='bar-add-template'>
     <label for="privateBox">Privat</label>
     <input type="checkbox" id="privatebox" name="privatebox" checked>
-    <button class="button" type="submit" id="add_button" value="add" name="add_button">Hinzufügen </button>
+    <button class="button" type="submit" id="add_button" value="add" name="add_button">Hinzufügen</button>
     <select id="users" name="users">
       <option value="Normalo">Normalo</option>
       <option value="Admina">Admina</option>
