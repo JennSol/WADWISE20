@@ -1,11 +1,15 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 const app = express();
 const port = 80;
+
+app.use(morgan('dev'));
+
 var advizRouter = require('./routes/adviz');
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/adviz', advizRouter);
+app.use('/adviz', advizRouter); 
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
