@@ -6,38 +6,38 @@ const mongoose = require('mongoose');
 router.use(bodyParser.json());
 
 const User = require('../models/user');
-const Contact = require('../models/contact');
+const Contacts = require('../models/contacts');
 const { Mongoose, isValidObjectId } = require('mongoose');
 
 
-router.get('/', (req,res) =>{       
+router.get('/', (req, res) => {
     res.sendFile(path.resolve('./public/index.html'));
 });
 
 
-router.post('/login', (req,res) =>{
-    User.find({ userid: req.body.name})
-    .exec( )
-    .then(user => {
-      if (req.body.password == user[0].password){
-        res.status(200).json({
-           user: user[0]
+router.post('/login', (req, res) => {
+    User.find({ userid: req.body.username })
+        .exec()
+        .then(user => {
+            if (req.body.password == user[0].password) {
+                res.status(200).json({
+                    user: user[0]
+                });
+            }
+            else {
+                res.status(401).send();
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
         });
-      }
-      else{
-          res.status(401).send();
-      }
-    })
-    .catch(err =>{
-        res.status(500).json({
-            error: err
-        });
-    });
 });
 
 //create new Contact
-router.post('/contacts',(req,res) =>{
-    const contact = new Contact({
+router.post('/contacts', (req, res) => {
+    const contacts = new Contacts({
         _id: mongoose.Types.ObjectId(),
         title: req.body.title,
         gender: req.body.gender,
@@ -54,12 +54,44 @@ router.post('/contacts',(req,res) =>{
         geoCord: req.body.geoCord,
         owner: req.body.owner
     });
-    contact.save();
-    res.location('/contacts/' + contact._id);
-    res.status(201).json({
-        contactID: contact._id
-    });
+    contacts
+        .save()
+        .then(result => {
+            res.location('/contacts/' + result._id);
+            res.status(201).json({
+                contactID: result._id
+            })
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
 });
 
-module.exports = router;
+//Read contacts
+router.get('/contacts', (req, res) => {
+    const contactOwner = req.query.userId;
+    Contacts.find({ owner : contactOwner})
+        .exec()
+        .then(contacts => {
+            if (contacts) {
+                res.status(200).json({
+                    contacts
+                });
+            }
+            else {
+                res.status(404).json({
+                    message: 'User has no contacts'
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+});
 
+
+module.exports = router;

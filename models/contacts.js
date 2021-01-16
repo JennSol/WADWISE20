@@ -18,4 +18,4 @@ const contactSchema = mongoose.Schema({
     owner: String
 });
 
-module.exports = mongoose.model('Contact', contactSchema);
+module.exports = mongoose.model('Contacts', contactSchema);
