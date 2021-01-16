@@ -117,9 +117,7 @@ router.patch('/contacts/:id', (req, res) => {
         .exec()
         .then(contacts => {
             if (contacts) {
-                res.status(200).json({
-                    contacts
-                });
+                res.status(204).send();
             }
             else {
                 res.status(404).send();
@@ -132,4 +130,24 @@ router.patch('/contacts/:id', (req, res) => {
         });
 });
 
+//update contacts
+router.delete('/contacts/:id', (req, res) => {
+    const id = req.params.id;
+
+    Contacts.remove({ _id : id})
+        .exec()
+        .then(contacts => {
+            if (contacts) {
+                res.status(204).send();
+            }
+            else {
+                res.status(404).send();
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+});
 module.exports = router;
