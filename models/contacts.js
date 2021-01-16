@@ -4,8 +4,8 @@ const contactSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     title: String,
     gender: String,
-    firstName: String,
-    lastName: String,
+    firstname: String,
+    lastname: String,
     street: String,
     house: Number,
     postcode: Number,
@@ -14,7 +14,7 @@ const contactSchema = mongoose.Schema({
     email: String,
     other: String,
     private: Boolean,
-    geoCord: Array,
+    geoCoord: Array,
     owner: String
 });
 

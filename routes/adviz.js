@@ -41,8 +41,8 @@ router.post('/contacts', (req, res) => {
         _id: mongoose.Types.ObjectId(),
         title: req.body.title,
         gender: req.body.gender,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
+        firstName: req.body.firstname,
+        lastName: req.body.lastname,
         street: req.body.street,
         house: req.body.house,
         postcode: req.body.postcode,
@@ -51,7 +51,7 @@ router.post('/contacts', (req, res) => {
         email: req.body.email,
         other: req.body.other,
         private: req.body.private,
-        geoCord: req.body.geoCord,
+        geoCoord: req.body.geoCoord,
         owner: req.body.owner
     });
     contacts
@@ -76,6 +76,7 @@ router.get('/contacts', (req, res) => {
         .exec()
         .then(contacts => {
             if (contacts) {
+                res.type('application/json');
                 res.status(200).json({
                     contacts
                 });
@@ -93,5 +94,42 @@ router.get('/contacts', (req, res) => {
         });
 });
 
+//update contacts
+router.patch('/contacts/:id', (req, res) => {
+    const id = req.params.id;
+
+    Contacts.findOneAndUpdate({ _id : id},{ $set: { 
+        title: req.body.title,
+        gender: req.body.gender,
+        firstName: req.body.firstname,
+        lastName: req.body.lastname,
+        street: req.body.street,
+        house: req.body.house,
+        postcode: req.body.postcode,
+        city: req.body.city,
+        country: req.body.country,
+        email: req.body.email,
+        other: req.body.other,
+        private: req.body.private,
+        geoCord: req.body.geoCoord,
+        owner: req.body.owner }
+    })
+        .exec()
+        .then(contacts => {
+            if (contacts) {
+                res.status(200).json({
+                    contacts
+                });
+            }
+            else {
+                res.status(404).send();
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+});
 
 module.exports = router;
