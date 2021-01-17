@@ -70,6 +70,7 @@ router.post('/contacts', (req, res) => {
 });
 
 //Read contacts
+//localhost:80/adviz/contacts?userId=Normalo
 router.get('/contacts', (req, res) => {
     const contactOwner = req.query.userId;
     Contacts.find({ owner : contactOwner})
@@ -111,7 +112,7 @@ router.patch('/contacts/:id', (req, res) => {
         email: req.body.email,
         other: req.body.other,
         private: req.body.private,
-        geoCord: req.body.geoCoord,
+        geoCoord: req.body.geoCoord,
         owner: req.body.owner }
     })
         .exec()
@@ -130,7 +131,7 @@ router.patch('/contacts/:id', (req, res) => {
         });
 });
 
-//update contacts
+//delete contacts
 router.delete('/contacts/:id', (req, res) => {
     const id = req.params.id;
 
@@ -150,4 +151,32 @@ router.delete('/contacts/:id', (req, res) => {
             });
         });
 });
+
+// Read  all users
+// localhost:80/adviz/users
+router.get('/users', (req, res) => {
+    const contactOwner = req.query.userId;
+    User.find()
+        .exec()
+        .then(user => {
+            if (user) {
+                res.type('application/json');
+                res.status(200).json({
+                    Users: user
+                });
+            }
+            else {
+                res.status(404).send();
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+});
+
+
+
 module.exports = router;
+
