@@ -43,7 +43,7 @@ function Contact(title, gender, firstName, lastName, street, house, postcode, ci
 function generateUsers() {
     let admina = new User('Admina', 'a', [mueller, neumann], true);
     let normalo = new User('Normalo', 'a', [schuster, mayer], false);
-    
+
 }
 
 function authenticate(username, password) {
@@ -107,27 +107,35 @@ async function login() {
             password: passwordFromForm
         }
     };
-    postData('/adviz/login', json).then(data=> {
-        if(data.status==200){
-            data.json().then(function(payload){
-                console.log(payload);
-                let user = JSON.parse(payload);
-                JSON.parse(payload, (key, value) => {
-                    console.log(key + ' ' + value); // Loggt die Namen der Eigenschaften, der letzte ist "".
-                    return value;     // Gib den unveränderten Eigenschaftenwert zurück.
-                  });
-                console.log('Logged in as user '+user.user.name);
-                loginSuccessful();
-            });
-        }
-    }).catch(function error(){
-        if(data.status==401){
-            alert('Benutzername oder Passwort inkorrekt');
-        }
+    postData('/adviz/login', json).then(data => {
+            if (data.status == 200) {
+                data.json().then(payload => {
+                    //console.log(payload);
+                    let user = JSON.parse(payload);
+                    //JSON.parse(payload, (key, value) => {
+                    //    console.log(key + ' ' + value); 
+                    //    return value;
+                    //});
+                    activeUser = new User(user.user.name, null, getContactArrayFromJson(user.contacts), user.user.admin);
+                    console.log('Logged in as user ' + user.user.name);
+                    loginSuccessful();
+                });
+            }
+            else if (data.status == 401) {
+                alert('Benutzername oder Passwort inkorrekt');
+            }        
     });
-    //let password = document.getElementById('password').value;
-    //let username = document.getElementById('user_name').value;
-    //authenticate(username, password);
+}
+
+function getContactArrayFromJson(json){
+    
+    let contacts = []
+    json.forEach(contact =>{
+        let contactFromJson = new Contact(contact.title, contact.gender, contact.firstName, contact.lastName,
+            contact.street, contact.house,contact.postcode,contact.city, contact.county,contact.email,contact.other, contact.private);
+        contacts.push(contactFromJson);    
+    });
+    return contacts;
 }
 
 function disableUpdateView() {
@@ -237,7 +245,6 @@ function addEventListenersToContactListEntry(id, contact) {
     let listitems = document.getElementById('contact_list').getElementsByTagName('li');
     let li = listitems[id];
     li.addEventListener("click", function (event) {
-        console.log(event.target);
         if (event.target.icontype == 'delete') {
             if (confirm(contact.firstName + ' ' + contact.lastName + ' löschen?')) {
                 deleteContactById(id);
@@ -264,23 +271,40 @@ function addEventListenersToContactListEntry(id, contact) {
         let marker = markers.get(id);
         marker.closePopup();
     });
+}
 
+function jsonToContact(json){
+    let private = (json.private == 'true');
+    return new Contact(json.title, json.gender, json.firstName, json.lastName, json.street, json.house, json.postcode, json.city, json.country, json.email, json.other, private);
 
 }
-function showAllContacts() {
+
+async function showAllContacts() {
     clearContactList();
     let counter = 0;
     contact_Map.clear();
     removeAllMarkersFromMap();
-    users.forEach(user => {
-        user.contacts.forEach(element => {
-            if (isMyContact(element) == true || !element.private || activeUser.admin && element.private) {
+
+    await fetch('/adviz/contacts?userId='+activeUser.username+'&withPublics=true').then(data => 
+        data.json().then(payload=>{
+            contacts=JSON.parse(payload);
+            contacts.forEach(element => {
+                //console.log(jsonToContact(element));
                 addContactToContactList(counter, element);
                 addEventListenersToContactListEntry(counter, element);
                 counter++;
-            }
-        });
-    });
+            });
+        }));
+
+    //users.forEach(user => {
+    //    user.contacts.forEach(element => {
+    //        if (isMyContact(element) == true || !element.private || activeUser.admin && element.private) {
+    //            addContactToContactList(counter, element);
+    //            addEventListenersToContactListEntry(counter, element);
+    //            counter++;
+    //        }
+    //    });
+    //});
 }
 
 function isMyContact(contact) {
@@ -341,32 +365,6 @@ function openUpdateScreen(id) {
     }
 
 
-}
-
-function oldopenUpdateScreen(id) {
-    let contactInfo = contact_Map.get(parseInt(id));
-    if (contactInfo != undefined) {
-        if (isMyContact(contactInfo) == true || activeUser.admin == true) {
-            let updateScreen = document.getElementById('delete_update_screen');
-            disableAdminView();
-            updateScreen.style.display = 'initial';
-            document.getElementById('title_d').value = contactInfo.title;
-            document.getElementById('genders_d').value = contactInfo.gender;
-            document.getElementById('prename_d').value = contactInfo.firstName;
-            document.getElementById('name_d').value = contactInfo.lastName;
-            document.getElementById('street_d').value = contactInfo.street;
-            document.getElementById('house_d').value = contactInfo.house;
-            document.getElementById('postcode_d').value = contactInfo.postcode;
-            document.getElementById('city_d').value = contactInfo.city;
-            document.getElementById('county_d').value = contactInfo.country;
-            document.getElementById('email_d').value = contactInfo.email;
-            document.getElementById('other_d').value = contactInfo.other;
-            document.getElementById('privateBox_d').value = contactInfo.private;
-            oldContactInfo = contactInfo;
-        } else {
-            alert('Keine Berechtigung zum Bearbeiten oder Löschen!')
-        }
-    }
 }
 
 async function updateContact() {
@@ -463,12 +461,25 @@ function getContactDataNewContact() {
     return contact;
 }
 
-function showAddDialog() {
-    disableAdminView();
+async function showAddDialog() {
+    let users = [];
+        disableAdminView();
     enableAddNewDialogTemplate();
+    
     let userSelection = document.getElementById('users');
     if (activeUser.admin == true) {
+        await fetch('/adviz/users').then(data => 
+            data.json().then(payload=>{
+                users=JSON.parse(payload);
+                users.forEach(user => {
+                    let option = document.createElement('option');
+                    option.text = user;
+                    userSelection.add(option);
+                });
+            }));
+    
         userSelection.style.display = 'initial';
+
     }
     else {
         userSelection.style.display = 'none';
@@ -481,13 +492,18 @@ async function addContact() {
     try {
         valid = await contactAddressValid(newContact.street, newContact.house, newContact.city);
     } catch {
-        valid = true;
+        valid = false;
     }
     if (valid) {
         if (activeUser.admin == true) {
             let userSelection = document.getElementById('users').value;
             users.forEach(element => {
                 if (element.username == userSelection) {
+                    postData('/adviz/contact', newContact).then(data => {
+                        if (data.status == 200){
+                            //data.json().then
+                        }
+                    });
                     element.contacts.push(newContact);
                 }
             });
