@@ -154,15 +154,16 @@ router.delete('/contacts/:id', (req, res) => {
 
 // Read  all users
 // localhost:80/adviz/users
+//ACHTUNG userid ist hier der name , war so vorgegeben
 router.get('/users', (req, res) => {
-    const contactOwner = req.query.userId;
     User.find()
+    .select('userid -_id')
         .exec()
         .then(user => {
             if (user) {
                 res.type('application/json');
                 res.status(200).json({
-                    Users: user
+                    Usernames: user
                 });
             }
             else {
@@ -175,6 +176,7 @@ router.get('/users', (req, res) => {
             });
         });
 });
+
 
 
 
