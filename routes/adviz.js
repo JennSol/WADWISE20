@@ -2,98 +2,183 @@ const express = require('express')
 const path = require('path');
 const router = express.Router();
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 router.use(bodyParser.json());
 
-//contacts
-let neumann = new Contact(null, 'female', 'Susi', 'Neumann', 'Landsberger Allee', 320, 10365, 'Berlin', 'Deutschland', 'Neumann@gmail.de', null, false);
-let schuster = new Contact(null, 'male', 'Robert', 'Schuster', 'Oberfeldstraße', 91, 12683, 'Berlin', 'Deutschland', 'Schuster@hotmail.de', null, true);
-let mayer = new Contact(null, 'female', 'Anne', 'Mayer', 'Bernauer Str.', 50, 10435, 'Berlin', 'Deutschland', 'Mayer@outlook.de', null, false);
-let mueller = new Contact(null, 'male', 'Hans', 'Mueller', 'Berliner Allee', 261, 13088, 'Berlin', 'Deutschland', 'Mueller@mail.de', null, true);
+const User = require('../models/user');
+const Contacts = require('../models/contacts');
+const { Mongoose, isValidObjectId } = require('mongoose');
 
-//users
-let admina = new User('Admina', 'a', [mueller, neumann], true);
-let normalo = new User('Normalo', 'a', [schuster, mayer], false);
-let users = [admina, normalo];
 
-function User(username, password, contacts, admin) {
-    this.username = username;
-    this.password = password;
-    this.contacts = contacts;
-    this.admin = admin;
-};
-
-function Contact(title, gender, firstName, lastName, street, house, postcode, city, country, email, other, private) {
-    this.title = title;
-    this.gender = gender;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.street = street;
-    this.house = house;
-    this.postcode = postcode;
-    this.city = city;
-    this.country = country;
-    this.email = email;
-    this.other = other;
-    this.private = private;
-}
-
-router.get('/', (req,res) =>{       
+router.get('/', (req, res) => {
     res.sendFile(path.resolve('./public/index.html'));
 });
 
 
-router.post('/login', (req,res) =>{
-    let username = req.body.user.name;
-    let password = req.body.user.password;
-    console.log('Login occured with name '+username + ' and password '+password);  
-    if(isAuthenticated(username, password)){
-        console.log('authenticated');
-        res.status(200).json(getUserAndContactsJson(username));
-    }else{
-        console.log('not authenticated');
-        res.status(401).send();
-    }
+router.post('/login', (req, res) => {
+    User.find({ userid: req.body.username })
+        .exec()
+        .then(user => {
+            if (req.body.password == user[0].password) {
+                res.status(200).json({
+                    user: user[0]
+                });
+            }
+            else {
+                res.status(401).send();
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
 });
 
-function isAuthenticated(username, password){
-    for (let i = 0; i<users.length; i++){
-        let user = users[i];
-        if(user.username == username && user.password == password){
-            return true;
-        }
-    }
-    return false;
-}
+//create new Contact
+router.post('/contacts', (req, res) => {
+    const contacts = new Contacts({
+        _id: mongoose.Types.ObjectId(),
+        title: req.body.title,
+        gender: req.body.gender,
+        firstName: req.body.firstname,
+        lastName: req.body.lastname,
+        street: req.body.street,
+        house: req.body.house,
+        postcode: req.body.postcode,
+        city: req.body.city,
+        country: req.body.country,
+        email: req.body.email,
+        other: req.body.other,
+        private: req.body.private,
+        geoCoord: req.body.geoCoord,
+        owner: req.body.owner
+    });
+    contacts
+        .save()
+        .then(result => {
+            res.location('/contacts/' + result._id);
+            res.status(201).json({
+                contactID: result._id
+            })
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+});
 
-function getUserAndContactsJson(username){
+//Read contacts
+//localhost:80/adviz/contacts?userId=Normalo
+router.get('/contacts', (req, res) => {
+    const contactOwner = req.query.userId;
+    Contacts.find({ owner : contactOwner})
+        .exec()
+        .then(contacts => {
+            if (contacts) {
+                res.type('application/json');
+                res.status(200).json({
+                    contacts
+                });
+            }
+            else {
+                res.status(404).json({
+                    message: 'User has no contacts'
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+});
 
-    //hier kannst du schalten und walten, bitte darauf achten dass du ungefähr
-    //diese struktur beibehältst, außer es spricht ein guter grund dagegen.
-    //Du kannst also alles was hier drinsteht umschreiben, es diente mir nur 
-    //zum mocken der DB
-    let admina = new User('Admina', 'a', [mueller, neumann], true);
-    let normalo = new User('Normalo', 'a', [schuster, mayer], false);
-    let adminaJson = {
-        user:{
-            name: admina.username,
-            admin:  admina.admin
-        },
-        contacts: admina.contacts
-    }
-    let normaloJson = {
-        user:{
-            name: normalo.username,
-            admin:  normalo.admin
-        },
-        contacts: normalo.contacts
-    }
-    if (username=='Admina'){
-        return JSON.stringify(adminaJson);
-    }else if (username=='Normalo'){
-        return JSON.stringify(normaloJson);
-    }
-    
-}
+//update contacts
+router.patch('/contacts/:id', (req, res) => {
+    const id = req.params.id;
+
+    Contacts.findOneAndUpdate({ _id : id},{ $set: { 
+        title: req.body.title,
+        gender: req.body.gender,
+        firstName: req.body.firstname,
+        lastName: req.body.lastname,
+        street: req.body.street,
+        house: req.body.house,
+        postcode: req.body.postcode,
+        city: req.body.city,
+        country: req.body.country,
+        email: req.body.email,
+        other: req.body.other,
+        private: req.body.private,
+        geoCoord: req.body.geoCoord,
+        owner: req.body.owner }
+    })
+        .exec()
+        .then(contacts => {
+            if (contacts) {
+                res.status(204).send();
+            }
+            else {
+                res.status(404).send();
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+});
+
+//delete contacts
+router.delete('/contacts/:id', (req, res) => {
+    const id = req.params.id;
+
+    Contacts.remove({ _id : id})
+        .exec()
+        .then(contacts => {
+            if (contacts) {
+                res.status(204).send();
+            }
+            else {
+                res.status(404).send();
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+});
+
+// Read  all users
+// localhost:80/adviz/users
+//ACHTUNG userid ist hier der name , war so vorgegeben
+router.get('/users', (req, res) => {
+    User.find()
+    .select('userid -_id')
+        .exec()
+        .then(user => {
+            if (user) {
+                res.type('application/json');
+                res.status(200).json({
+                    Usernames: user
+                });
+            }
+            else {
+                res.status(404).send();
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+});
+
+
+
 
 module.exports = router;
 
