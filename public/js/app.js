@@ -18,6 +18,13 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     accessToken: 'pk.eyJ1Ijoia2Fyc3RlbmFic2NoaWVkIiwiYSI6ImNrZ210OGRzaDF1eTAydHRldzdzbTZ0MG8ifQ.Y8abAkOxDNR_Am3Ij1GNzw'
 }).addTo(mymap);
 
+function User(username, password, contacts, admin) {
+    this.username = username;
+    this.password = password;
+    this.contacts = contacts;
+    this.admin = admin;
+};
+
 function Contact(title, gender, firstName, lastName, street, house, postcode, city, country, email, other, private) {
     this.title = title;
     this.gender = gender;
@@ -36,15 +43,8 @@ function Contact(title, gender, firstName, lastName, street, house, postcode, ci
 function generateUsers() {
     let admina = new User('Admina', 'a', [mueller, neumann], true);
     let normalo = new User('Normalo', 'a', [schuster, mayer], false);
-    return [admina, normalo];
+    
 }
-
-function User(username, password, contacts, admin) {
-    this.username = username;
-    this.password = password;
-    this.contacts = contacts;
-    this.admin = admin;
-};
 
 function authenticate(username, password) {
     //hardcoded login data, normally we would call our backend here
@@ -80,10 +80,54 @@ function enableAdminView() {
     showMyContacts();
 }
 
-function login() {
-    let password = document.getElementById('password').value;
+async function postData(url = '', data = {}) {
+    // Default options are marked with *
+    const response = await fetch(url, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response; // parses JSON response into native JavaScript objects
+}
+
+async function login() {
+    let passwordFromForm = document.getElementById('password').value;
     let username = document.getElementById('user_name').value;
-    authenticate(username, password);
+    let json = {
+        user: {
+            name: username,
+            password: passwordFromForm
+        }
+    };
+    postData('/adviz/login', json).then(data=> {
+        if(data.status==200){
+            data.json().then(function(payload){
+                console.log(payload);
+                let user = JSON.parse(payload);
+                JSON.parse(payload, (key, value) => {
+                    console.log(key + ' ' + value); // Loggt die Namen der Eigenschaften, der letzte ist "".
+                    return value;     // Gib den unveränderten Eigenschaftenwert zurück.
+                  });
+                console.log('Logged in as user '+user.user.name);
+                loginSuccessful();
+            });
+        }
+    }).catch(function error(){
+        if(data.status==401){
+            alert('Benutzername oder Passwort inkorrekt');
+        }
+    });
+    //let password = document.getElementById('password').value;
+    //let username = document.getElementById('user_name').value;
+    //authenticate(username, password);
 }
 
 function disableUpdateView() {
@@ -193,6 +237,7 @@ function addEventListenersToContactListEntry(id, contact) {
     let listitems = document.getElementById('contact_list').getElementsByTagName('li');
     let li = listitems[id];
     li.addEventListener("click", function (event) {
+        console.log(event.target);
         if (event.target.icontype == 'delete') {
             if (confirm(contact.firstName + ' ' + contact.lastName + ' löschen?')) {
                 deleteContactById(id);
@@ -259,7 +304,7 @@ function openUpdateScreen(id) {
     if (contactInfo != undefined) {
         if (isMyContact(contactInfo) == true || activeUser.admin == true) {
             disableAdminView();
-            
+
             let childs = document.getElementById('delete_update_screen');
             while (childs.firstChild) {
                 childs.removeChild(childs.lastChild);
