@@ -73,7 +73,7 @@ router.post('/contacts', (req, res) => {
 //localhost:80/adviz/contacts?userId=Normalo
 router.get('/contacts', (req, res) => {
     const contactOwner = req.query.userId;
-    Contacts.find({ owner : contactOwner})
+    Contacts.find({ owner: contactOwner })
         .exec()
         .then(contacts => {
             if (contacts) {
@@ -99,21 +99,23 @@ router.get('/contacts', (req, res) => {
 router.patch('/contacts/:id', (req, res) => {
     const id = req.params.id;
 
-    Contacts.findOneAndUpdate({ _id : id},{ $set: { 
-        title: req.body.title,
-        gender: req.body.gender,
-        firstName: req.body.firstname,
-        lastName: req.body.lastname,
-        street: req.body.street,
-        house: req.body.house,
-        postcode: req.body.postcode,
-        city: req.body.city,
-        country: req.body.country,
-        email: req.body.email,
-        other: req.body.other,
-        private: req.body.private,
-        geoCoord: req.body.geoCoord,
-        owner: req.body.owner }
+    Contacts.findOneAndUpdate({ _id: id }, {
+        $set: {
+            title: req.body.title,
+            gender: req.body.gender,
+            firstName: req.body.firstname,
+            lastName: req.body.lastname,
+            street: req.body.street,
+            house: req.body.house,
+            postcode: req.body.postcode,
+            city: req.body.city,
+            country: req.body.country,
+            email: req.body.email,
+            other: req.body.other,
+            private: req.body.private,
+            geoCoord: req.body.geoCoord,
+            owner: req.body.owner
+        }
     })
         .exec()
         .then(contacts => {
@@ -135,7 +137,7 @@ router.patch('/contacts/:id', (req, res) => {
 router.delete('/contacts/:id', (req, res) => {
     const id = req.params.id;
 
-    Contacts.remove({ _id : id})
+    Contacts.remove({ _id: id })
         .exec()
         .then(contacts => {
             if (contacts) {
@@ -157,7 +159,7 @@ router.delete('/contacts/:id', (req, res) => {
 //ACHTUNG userid ist hier der name , war so vorgegeben
 router.get('/users', (req, res) => {
     User.find()
-    .select('userid -_id')
+        .select('userid -_id')
         .exec()
         .then(user => {
             if (user) {
@@ -177,7 +179,41 @@ router.get('/users', (req, res) => {
         });
 });
 
+//get all Contacts
+//localhost:80/adviz/allContacts
+//body : admin: true/false name: "Admina/Normalo"
+router.get('/allContacts', (req, res) => {
+    const name = req.body.name;
+    const admin = req.body.admin;
+    var findCondition = { $or: [{ owner: name, }, { private: false }] };
 
+    if (name && admin == true) {
+        findCondition = {}
+    }
+
+    console.log(name, admin);
+
+    Contacts.find(findCondition)
+        .exec()
+        .then(contacts => {
+            if (contacts) {
+                res.type('application/json');
+                res.status(200).json({
+                    contacts
+                });
+            }
+            else {
+                res.status(404).json({
+                    message: 'User has no contacts'
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+});
 
 
 module.exports = router;
