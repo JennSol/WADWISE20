@@ -25,7 +25,8 @@ function User(username, password, contacts, admin) {
     this.admin = admin;
 };
 
-function Contact(title, gender, firstName, lastName, street, house, postcode, city, country, email, other, private) {
+function Contact(title, gender, firstName, lastName, street, house,
+    postcode, city, country, email, other, private, id = null, owner) {
     this.title = title;
     this.gender = gender;
     this.firstName = firstName;
@@ -38,6 +39,8 @@ function Contact(title, gender, firstName, lastName, street, house, postcode, ci
     this.email = email;
     this.other = other;
     this.private = private;
+    this.id = id;
+    this.owner = owner;
 }
 
 function generateUsers() {
@@ -102,38 +105,37 @@ async function login() {
     let passwordFromForm = document.getElementById('password').value;
     let username = document.getElementById('user_name').value;
     let json = {
-        user: {
-            name: username,
-            password: passwordFromForm
-        }
+        username: username,
+        password: passwordFromForm
     };
     postData('/adviz/login', json).then(data => {
-            if (data.status == 200) {
-                data.json().then(payload => {
-                    //console.log(payload);
-                    let user = JSON.parse(payload);
-                    //JSON.parse(payload, (key, value) => {
-                    //    console.log(key + ' ' + value); 
-                    //    return value;
-                    //});
-                    activeUser = new User(user.user.name, null, getContactArrayFromJson(user.contacts), user.user.admin);
-                    console.log('Logged in as user ' + user.user.name);
-                    loginSuccessful();
-                });
-            }
-            else if (data.status == 401) {
-                alert('Benutzername oder Passwort inkorrekt');
-            }        
+        if (data.status == 200) {
+            data.json().then(payload => {
+                console.log(payload);
+                //console.log(payload);
+                //let user = JSON.parse(payload);
+                //JSON.parse(payload, (key, value) => {
+                //    console.log(key + ' ' + value); 
+                //    return value;
+                //});
+                activeUser = new User(payload.user.userid, null, null, payload.user.admin);
+                console.log('Logged in as user ' + activeUser.username);
+                loginSuccessful();
+            });
+        }
+        else if (data.status == 401) {
+            alert('Benutzername oder Passwort inkorrekt');
+        }
     });
 }
 
-function getContactArrayFromJson(json){
-    
+function getContactArrayFromJson(json) {
+
     let contacts = []
-    json.forEach(contact =>{
+    json.forEach(contact => {
         let contactFromJson = new Contact(contact.title, contact.gender, contact.firstName, contact.lastName,
-            contact.street, contact.house,contact.postcode,contact.city, contact.county,contact.email,contact.other, contact.private);
-        contacts.push(contactFromJson);    
+            contact.street, contact.house, contact.postcode, contact.city, contact.county, contact.email, contact.other, contact.private);
+        contacts.push(contactFromJson);
     });
     return contacts;
 }
@@ -229,15 +231,25 @@ function removeAllMarkersFromMap() {
     markers.clear();
 }
 
-function showMyContacts() {
-    clearContactList();
-    let counter = 0;
-    contact_Map.clear();
-    removeAllMarkersFromMap();
-    activeUser.contacts.forEach(element => {
-        addContactToContactList(counter, element);
-        addEventListenersToContactListEntry(counter, element);
-        counter++;
+function jsonToContact(json) {
+    return new Contact(json.title, json.gender, json.firstname, json.lastname, json.street, json.house, json.postcode,
+        json.city, json.country, json.email, json.other, json.private, json._id, json.owner);
+}
+
+async function showMyContacts() {
+    await fetch('/adviz/contacts?userId=' + activeUser.username).then(function (data) {
+        clearContactList();
+        let counter = 0;
+        contact_Map.clear();
+        removeAllMarkersFromMap();
+        data.json().then(payload => {
+            payload.contacts.forEach(json => {
+                let contact = jsonToContact(json);
+                addContactToContactList(counter, contact);
+                addEventListenersToContactListEntry(counter, contact);
+                counter++;
+            });
+        });
     });
 }
 
@@ -273,28 +285,39 @@ function addEventListenersToContactListEntry(id, contact) {
     });
 }
 
-function jsonToContact(json){
-    let private = (json.private == 'true');
-    return new Contact(json.title, json.gender, json.firstName, json.lastName, json.street, json.house, json.postcode, json.city, json.country, json.email, json.other, private);
-
-}
-
-async function showAllContacts() {
+function showAllContacts() {
     clearContactList();
     let counter = 0;
     contact_Map.clear();
     removeAllMarkersFromMap();
-
-    await fetch('/adviz/contacts?userId='+activeUser.username+'&withPublics=true').then(data => 
-        data.json().then(payload=>{
-            contacts=JSON.parse(payload);
-            contacts.forEach(element => {
-                //console.log(jsonToContact(element));
-                addContactToContactList(counter, element);
-                addEventListenersToContactListEntry(counter, element);
+    let json = {
+        name: activeUser.username,
+        admin: activeUser.admin
+    }
+    postData(url = '/adviz/allContacts', json).then(data => {
+        data.json().then(payload => {
+            //console.log(payload);
+            payload.contacts.forEach(json => {
+                let contact = jsonToContact(json);
+                console.log(contact);
+                addContactToContactList(counter, contact);
+                addEventListenersToContactListEntry(counter, contact);
                 counter++;
             });
-        }));
+        });
+    });
+
+    //await fetch('/adviz/contacts?userId='+activeUser.username+'&withPublics=true').then(data => 
+    //    data.json().then(payload=>{
+    //        contacts=JSON.parse(payload);
+    //        contacts.forEach(element => {
+    //            //console.log(jsonToContact(element));
+    //            addContactToContactList(counter, element);
+    //            addEventListenersToContactListEntry(counter, element);
+    //            counter++;
+    //        });
+    //    })
+    //);
 
     //users.forEach(user => {
     //    user.contacts.forEach(element => {
@@ -308,11 +331,7 @@ async function showAllContacts() {
 }
 
 function isMyContact(contact) {
-    for (let index = 0; index < activeUser.contacts.length; index++) {
-        if (activeUser.contacts[index] == contact) {
-            return true;
-        }
-    }
+    return contact.owner == activeUser.username;
 }
 
 function clearContactList() {
@@ -363,32 +382,59 @@ function openUpdateScreen(id) {
             alert('Keine Berechtigung zum Bearbeiten oder Löschen!')
         }
     }
-
-
 }
 
 async function updateContact() {
     const updatedContact = getContactData();
+
+    let json = {
+        title: updatedContact.title,
+        gender: updatedContact.gender,
+        firstname: updatedContact.firstName,
+        lastname: updatedContact.lastName,
+        street: updatedContact.street,
+        house: updatedContact.house,
+        postcode: updatedContact.postcode,
+        city: updatedContact.city,
+        country: updatedContact.country,
+        email: updatedContact.email,
+        other: updatedContact.other,
+        private: updatedContact.private,
+        geoCoord: null,
+        owner: updatedContact.owner
+    }
+
     const valid = await contactAddressValid(updatedContact.street, updatedContact.house, updatedContact.city)
     if (valid) {
         if (activeUser.admin) {
-            users.forEach(element => {
-                for (let index = 0; index < element.contacts.length; index++) {
-                    if (element.contacts[index] == oldContactInfo) {
-                        element.contacts[index] = updatedContact;
-                        disableUpdateView();
-                        enableAdminView();
-                    }
-                }
+            
+            await fetch('/adviz/contacts/' + oldContactInfo.id, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(json),
+            }).then(response => {
+                console.log(response.status);
+                disableUpdateView();
+                enableAdminView();
             });
         }
         else {
-            for (let index = 0; index < activeUser.contacts.length; index++) {
-                if (activeUser.contacts[index] == oldContactInfo) {
-                    activeUser.contacts[index] = updatedContact;
+            if (oldContactInfo.owner == activeUser.username) {
+                await fetch('/adviz/contacts/' + oldContactInfo.id, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: json,
+                }).then(response => {
+                    console.log(response.status);
                     disableUpdateView();
                     enableAdminView();
-                }
+                });
+            } else {
+                alert('Aufgrund von Anforderungen an den Beleg können keine Fantasie-Adressen akzeptiert werden.');
             }
         }
     } else {
@@ -462,23 +508,21 @@ function getContactDataNewContact() {
 }
 
 async function showAddDialog() {
-    let users = [];
-        disableAdminView();
+    disableAdminView();
     enableAddNewDialogTemplate();
-    
     let userSelection = document.getElementById('users');
     if (activeUser.admin == true) {
-        await fetch('/adviz/users').then(data => 
-            data.json().then(payload=>{
-                users=JSON.parse(payload);
-                users.forEach(user => {
+        await fetch('/adviz/users').then(response => {
+            response.json().then(json => {
+                json.usernames.forEach(user => {
+                    console.log(user.userid);
                     let option = document.createElement('option');
-                    option.text = user;
+                    option.text = user.userid;
                     userSelection.add(option);
                 });
-            }));
-    
-        userSelection.style.display = 'initial';
+                userSelection.style.display = 'initial';
+            });
+        });
 
     }
     else {
@@ -495,21 +539,35 @@ async function addContact() {
         valid = false;
     }
     if (valid) {
+        let json = {
+            title: newContact.title,
+            gender: newContact.gender,
+            firstname: newContact.firstName,
+            lastname: newContact.lastName,
+            street: newContact.street,
+            house: newContact.house,
+            postcode: newContact.postcode,
+            city: newContact.city,
+            country: newContact.country,
+            email: newContact.email,
+            other: newContact.other,
+            private: newContact.private,
+            geoCoord: null,
+            owner: null
+        };
         if (activeUser.admin == true) {
             let userSelection = document.getElementById('users').value;
-            users.forEach(element => {
-                if (element.username == userSelection) {
-                    postData('/adviz/contact', newContact).then(data => {
-                        if (data.status == 200){
-                            //data.json().then
-                        }
-                    });
-                    element.contacts.push(newContact);
-                }
-            });
+            json.owner = userSelection;
+
         } else {
+            json.owner = activeUser.username;
             activeUser.contacts.push(newContact);
         }
+        postData('/adviz/contacts', json).then(data => {
+            if (data.status == 201) {
+                console.log('new contact added');
+            }
+        });
         disableAddnew_dialog();
         enableAdminView();
     } else {
