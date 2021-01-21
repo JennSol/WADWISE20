@@ -344,6 +344,7 @@ function clearContactList() {
 function openUpdateScreen(id) {
 
     let contactInfo = contact_Map.get(parseInt(id));
+    oldContactInfo = contactInfo;
     if (contactInfo != undefined) {
         if (isMyContact(contactInfo) == true || activeUser.admin == true) {
             disableAdminView();
@@ -386,7 +387,6 @@ function openUpdateScreen(id) {
 
 async function updateContact() {
     const updatedContact = getContactData();
-
     let json = {
         title: updatedContact.title,
         gender: updatedContact.gender,
@@ -401,7 +401,7 @@ async function updateContact() {
         other: updatedContact.other,
         private: updatedContact.private,
         geoCoord: null,
-        owner: updatedContact.owner
+        owner: oldContactInfo.owner
     }
 
     const valid = await contactAddressValid(updatedContact.street, updatedContact.house, updatedContact.city)
