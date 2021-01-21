@@ -118,7 +118,7 @@ async function login() {
                 //    console.log(key + ' ' + value); 
                 //    return value;
                 //});
-                activeUser = new User(payload.user.userid, null, null, payload.user.admin);
+                activeUser = new User(payload.user.userid, null, [], payload.user.admin);
                 console.log('Logged in as user ' + activeUser.username);
                 loginSuccessful();
             });
