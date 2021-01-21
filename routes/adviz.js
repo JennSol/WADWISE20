@@ -8,6 +8,7 @@ router.use(bodyParser.json());
 const User = require('../models/user');
 const Contacts = require('../models/contacts');
 const { Mongoose, isValidObjectId } = require('mongoose');
+mongoose.set('useFindAndModify', false);
 
 
 router.get('/', (req, res) => {
@@ -99,7 +100,6 @@ router.get('/contacts', (req, res) => {
 //update contacts
 router.patch('/contacts/:id', (req, res) => {
     const id = req.params.id;
-    console.log(req.body);
     Contacts.findOneAndUpdate({ _id: id }, {
         $set: {
             title: req.body.title,
