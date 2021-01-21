@@ -357,7 +357,7 @@ function openUpdateScreen(id) {
             let dialogTemplate = document.getElementById('add-edit-delete-dialog-template');
             let dialog = dialogTemplate.content;
             dialog.querySelector('.form_dialog').setAttribute('onsubmit', 'updateContact();return false');
-            let barTemplateContent = document.getElementById('bar-add-template').content;
+            let barTemplateContent = document.getElementById('bar-update-delete-template').content;
             let bar = dialog.querySelector('.bar');
             bar.append(barTemplateContent);
             dialog.querySelector('#title').value = contactInfo.title;
