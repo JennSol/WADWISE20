@@ -156,6 +156,9 @@ function enableAddNewDialogTemplate() {
     dialog.querySelector('.form_dialog').setAttribute('onsubmit', 'addContact(); return false;')
     let barTemplateContent = document.getElementById('bar-add-template').content;
     let bar = dialog.querySelector('.bar');
+    while (bar.firstChild) {
+        bar.removeChild(bar.lastChild);
+    }
     bar.append(barTemplateContent);
 
     dialog.querySelector('#title').value = '';
@@ -237,6 +240,7 @@ function jsonToContact(json) {
 }
 
 async function showMyContacts() {
+    removeAllMarkersFromMap();
     await fetch('/adviz/contacts?userId=' + activeUser.username).then(function (data) {
         clearContactList();
         let counter = 0;
@@ -257,11 +261,15 @@ function addEventListenersToContactListEntry(id, contact) {
     let listitems = document.getElementById('contact_list').getElementsByTagName('li');
     let li = listitems[id];
     li.addEventListener("click", function (event) {
-        if (event.target.icontype == 'delete') {
+        let icontype= '';
+        if(event.target.attributes.icontype!=undefined){
+            icontype=event.target.attributes.icontype.nodeValue;
+        }
+        if (icontype == 'delete') {
             if (confirm(contact.firstName + ' ' + contact.lastName + ' löschen?')) {
                 deleteContactById(id);
             }
-        } else if (event.target.icontype == 'edit') {
+        } else if (icontype == 'edit') {
             openUpdateScreen(id);
         }
         else {
@@ -306,28 +314,6 @@ function showAllContacts() {
             });
         });
     });
-
-    //await fetch('/adviz/contacts?userId='+activeUser.username+'&withPublics=true').then(data => 
-    //    data.json().then(payload=>{
-    //        contacts=JSON.parse(payload);
-    //        contacts.forEach(element => {
-    //            //console.log(jsonToContact(element));
-    //            addContactToContactList(counter, element);
-    //            addEventListenersToContactListEntry(counter, element);
-    //            counter++;
-    //        });
-    //    })
-    //);
-
-    //users.forEach(user => {
-    //    user.contacts.forEach(element => {
-    //        if (isMyContact(element) == true || !element.private || activeUser.admin && element.private) {
-    //            addContactToContactList(counter, element);
-    //            addEventListenersToContactListEntry(counter, element);
-    //            counter++;
-    //        }
-    //    });
-    //});
 }
 
 function isMyContact(contact) {
@@ -360,7 +346,10 @@ function openUpdateScreen(id) {
             dialog.querySelector('.form_dialog').setAttribute('onsubmit', 'updateContact();return false');
             let barTemplateContent = document.getElementById('bar-update-delete-template').content;
             let bar = dialog.querySelector('.bar');
-            bar.append(barTemplateContent);
+            while (bar.firstChild) {
+                bar.removeChild(bar.lastChild);
+            }
+            bar.append(barTemplateContent.cloneNode(true));
             dialog.querySelector('#title').value = contactInfo.title;
             dialog.querySelector('#genders').value = contactInfo.gender;
             dialog.querySelector('#prename').value = contactInfo.firstName;
@@ -386,7 +375,11 @@ function openUpdateScreen(id) {
 }
 
 async function updateContact() {
+    console.log('oldContact: ' + oldContactInfo);
+
     const updatedContact = getContactData();
+    console.log('updatedContact: ' + updatedContact);
+
     let json = {
         title: updatedContact.title,
         gender: updatedContact.gender,
@@ -407,9 +400,9 @@ async function updateContact() {
     const valid = await contactAddressValid(updatedContact.street, updatedContact.house, updatedContact.city)
     if (valid) {
         if (activeUser.admin) {
-            
+
             await fetch('/adviz/contacts/' + oldContactInfo.id, {
-                method: 'PATCH',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -427,7 +420,7 @@ async function updateContact() {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: json,
+                    body: JSON.stringify(json),
                 }).then(response => {
                     console.log(response.status);
                     disableUpdateView();
@@ -461,30 +454,35 @@ function getContactData() {
     return contact;
 }
 
-function deleteContact() {
+async function deleteContact() {
     if (activeUser.admin == true) {
-        users.forEach(element => {
-            for (let index = 0; index < element.contacts.length; index++) {
-                if (element.contacts[index] == oldContactInfo) {
-                    element.contacts.splice(index, 1);
-                    disableUpdateView();
-                    enableAdminView();
-                }
-            }
+        await fetch('/adviz/contacts/' + oldContactInfo.id, {
+            method: 'DELETE'
+        }).then(response => {
+            console.log(response.status);
+            disableUpdateView();
+            enableAdminView();
         });
     }
     else {
-        for (let index = 0; index < activeUser.contacts.length; index++) {
-            if (activeUser.contacts[index] == oldContactInfo) {
-                activeUser.contacts.splice(index, 1);
+        if(oldContactInfo.owner == activeUser.username){
+            await fetch('/adviz/contacts/' + oldContactInfo.id, {
+                method: 'DELETE'
+            }).then(response => {
+                console.log(response.status);
                 disableUpdateView();
                 enableAdminView();
-            }
+            });     
+        }else{
+            alert('Keine Berechtigung zum Löschen!');
+            disableUpdateView();
+            enableAdminView();  
         }
     }
 }
 
 function deleteContactById(id) {
+    console.log('deleting by id: '+id);
     oldContactInfo = contact_Map.get(id);
     deleteContact();
 }
