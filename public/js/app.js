@@ -159,7 +159,7 @@ function enableAddNewDialogTemplate() {
     while (bar.firstChild) {
         bar.removeChild(bar.lastChild);
     }
-    bar.append(barTemplateContent);
+    bar.append(barTemplateContent.cloneNode(true));
 
     dialog.querySelector('#title').value = '';
     dialog.querySelector('#genders').value = '';
