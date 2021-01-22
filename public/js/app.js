@@ -69,16 +69,16 @@ function enableAdminView() {
 
 async function postData(url = '', data = {}) {
     let response = await fetch(url, {
-        method: 'POST', 
-        mode: 'cors', 
-        cache: 'no-cache', 
-        credentials: 'same-origin', 
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
         headers: {
             'Content-Type': 'application/json'
         },
-        redirect: 'follow', 
-        referrerPolicy: 'no-referrer', 
-        body: JSON.stringify(data) 
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(data)
     });
     return response;
 }
@@ -220,9 +220,9 @@ function addEventListenersToContactListEntry(id, contact) {
     let listitems = document.getElementById('contact_list').getElementsByTagName('li');
     let li = listitems[id];
     li.addEventListener("click", function (event) {
-        let icontype= '';
-        if(event.target.attributes.icontype!=undefined){
-            icontype=event.target.attributes.icontype.nodeValue;
+        let icontype = '';
+        if (event.target.attributes.icontype != undefined) {
+            icontype = event.target.attributes.icontype.nodeValue;
         }
         if (icontype == 'delete') {
             if (confirm(contact.firstName + ' ' + contact.lastName + ' löschen?')) {
@@ -327,6 +327,7 @@ function openUpdateScreen(id) {
 async function updateContact() {
     const updatedContact = getContactData();
     let geoCoord = await getGeoCoordsForAddress(updatedContact);
+    console.log(geoCoord);
     let json = {
         title: updatedContact.title,
         gender: updatedContact.gender,
@@ -406,17 +407,17 @@ async function deleteContact() {
         });
     }
     else {
-        if(oldContactInfo.owner == activeUser.username){
+        if (oldContactInfo.owner == activeUser.username) {
             await fetch('/adviz/contacts/' + oldContactInfo.id, {
                 method: 'DELETE'
             }).then(response => {
                 disableUpdateView();
                 enableAdminView();
-            });     
-        }else{
+            });
+        } else {
             alert('Keine Berechtigung zum Löschen!');
             disableUpdateView();
-            enableAdminView();  
+            enableAdminView();
         }
     }
 }
@@ -464,8 +465,8 @@ async function showAddDialog() {
     }
 }
 
-async function getGeoCoordsForAddress(contact){
-    let geoCoord=[];
+async function getGeoCoordsForAddress(contact) {
+    let geoCoord = [];
     let call = "https://api.tomtom.com/search/2/geocode/" + contact.street + "%20" + contact.house + "%20" + contact.city + ".json?limit=1?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
     const request = new Request(call);
     await fetch(request)
@@ -474,7 +475,6 @@ async function getGeoCoordsForAddress(contact){
             json.results.forEach(result => {
                 if (result.type == "Point Address") {
                     geoCoord = [parseFloat(result.position.lat), parseFloat(result.position.lon)]
-                
                 };
             });
         });
@@ -487,7 +487,6 @@ async function addContact() {
     let geoCoord = await getGeoCoordsForAddress(newContact);
     try {
         valid = await contactAddressValid(newContact.street, newContact.house, newContact.city);
-
     } catch {
         valid = false;
     }
