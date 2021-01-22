@@ -1,5 +1,5 @@
 var mymap = L.map('map').setView([52.456009, 13.527571], 14);
-var contact_Map = new Map();
+var contactMap = new Map();
 var activeUser;
 var oldContactInfo;
 var markers = new Map();
@@ -46,23 +46,6 @@ function Contact(title, gender, firstName, lastName, street, house,
 function generateUsers() {
     let admina = new User('Admina', 'a', [mueller, neumann], true);
     let normalo = new User('Normalo', 'a', [schuster, mayer], false);
-
-}
-
-function authenticate(username, password) {
-    //hardcoded login data, normally we would call our backend here
-    let authenticated = false;
-    users.forEach(element => {
-        if (!authenticated && username == element.username && password == element.password) {
-            activeUser = element;
-            authenticated = true;
-        }
-    });
-    if (authenticated) {
-        loginSuccessful();
-    } else {
-        alert('Benutzername oder Passwort inkorrekt');
-    }
 }
 
 function loginSuccessful() {
@@ -84,21 +67,19 @@ function enableAdminView() {
 }
 
 async function postData(url = '', data = {}) {
-    // Default options are marked with *
-    const response = await fetch(url, {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
+    let response = await fetch(url, {
+        method: 'POST', 
+        mode: 'cors', 
+        cache: 'no-cache', 
+        credentials: 'same-origin', 
         headers: {
             'Content-Type': 'application/json'
-            // 'Content-Type': 'application/x-www-form-urlencoded',
         },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(data) // body data type must match "Content-Type" header
+        redirect: 'follow', 
+        referrerPolicy: 'no-referrer', 
+        body: JSON.stringify(data) 
     });
-    return response; // parses JSON response into native JavaScript objects
+    return response;
 }
 
 async function login() {
@@ -111,15 +92,7 @@ async function login() {
     postData('/adviz/login', json).then(data => {
         if (data.status == 200) {
             data.json().then(payload => {
-                console.log(payload);
-                //console.log(payload);
-                //let user = JSON.parse(payload);
-                //JSON.parse(payload, (key, value) => {
-                //    console.log(key + ' ' + value); 
-                //    return value;
-                //});
                 activeUser = new User(payload.user.userid, null, [], payload.user.admin);
-                console.log('Logged in as user ' + activeUser.username);
                 loginSuccessful();
             });
         }
@@ -130,7 +103,6 @@ async function login() {
 }
 
 function getContactArrayFromJson(json) {
-
     let contacts = []
     json.forEach(contact => {
         let contactFromJson = new Contact(contact.title, contact.gender, contact.firstName, contact.lastName,
@@ -150,7 +122,6 @@ function enableAddnew_dialog() {
 
 function enableAddNewDialogTemplate() {
     document.getElementById('addnew_dialog').style.display = 'initial';
-
     let dialogTemplate = document.getElementById('add-edit-delete-dialog-template')
     let dialog = dialogTemplate.content;
     dialog.querySelector('.form_dialog').setAttribute('onsubmit', 'addContact(); return false;')
@@ -160,7 +131,6 @@ function enableAddNewDialogTemplate() {
         bar.removeChild(bar.lastChild);
     }
     bar.append(barTemplateContent.cloneNode(true));
-
     dialog.querySelector('#title').value = '';
     dialog.querySelector('#genders').value = '';
     dialog.querySelector('#prename').value = '';
@@ -172,15 +142,12 @@ function enableAddNewDialogTemplate() {
     dialog.querySelector('#county').value = '';
     dialog.querySelector('#email').value = '';
     dialog.querySelector('#other').value = '';
-
     document.getElementById('addnew_dialog').append(dialog.cloneNode(true));
 }
 
 function disableAddnew_dialog() {
     let dialog = document.getElementById('addnew_dialog');
-
     dialog.removeChild(dialog.querySelector('.form_dialog'));
-
     document.getElementById('addnew_dialog').style.display = 'none';
 }
 
@@ -203,7 +170,7 @@ function logout() {
 }
 
 function addContactToContactList(counter, element) {
-    contact_Map.set(counter, element);
+    contactMap.set(counter, element);
     let template = document.getElementById('contact-template');
     let entry = template.content;
     let li = entry.querySelector('li');
@@ -244,7 +211,7 @@ async function showMyContacts() {
     await fetch('/adviz/contacts?userId=' + activeUser.username).then(function (data) {
         clearContactList();
         let counter = 0;
-        contact_Map.clear();
+        contactMap.clear();
         removeAllMarkersFromMap();
         data.json().then(payload => {
             payload.contacts.forEach(json => {
@@ -278,7 +245,6 @@ function addEventListenersToContactListEntry(id, contact) {
     });
     li.addEventListener("mouseover", function (event) {
         if (event.target.id == undefined) {
-            //getting toplevel id
             id = event.target.parent('.entryTopLevel').id;
         }
         let marker = markers.get(id);
@@ -296,7 +262,7 @@ function addEventListenersToContactListEntry(id, contact) {
 function showAllContacts() {
     clearContactList();
     let counter = 0;
-    contact_Map.clear();
+    contactMap.clear();
     removeAllMarkersFromMap();
     let json = {
         name: activeUser.username,
@@ -304,10 +270,8 @@ function showAllContacts() {
     }
     postData(url = '/adviz/allContacts', json).then(data => {
         data.json().then(payload => {
-            //console.log(payload);
             payload.contacts.forEach(json => {
                 let contact = jsonToContact(json);
-                console.log(contact);
                 addContactToContactList(counter, contact);
                 addEventListenersToContactListEntry(counter, contact);
                 counter++;
@@ -328,18 +292,15 @@ function clearContactList() {
 }
 
 function openUpdateScreen(id) {
-
-    let contactInfo = contact_Map.get(parseInt(id));
+    let contactInfo = contactMap.get(parseInt(id));
     oldContactInfo = contactInfo;
     if (contactInfo != undefined) {
         if (isMyContact(contactInfo) == true || activeUser.admin == true) {
             disableAdminView();
-
             let childs = document.getElementById('delete_update_screen');
             while (childs.firstChild) {
                 childs.removeChild(childs.lastChild);
             }
-
             document.getElementById('delete_update_screen').style.display = 'initial';
             let dialogTemplate = document.getElementById('add-edit-delete-dialog-template');
             let dialog = dialogTemplate.content;
@@ -362,11 +323,8 @@ function openUpdateScreen(id) {
             dialog.querySelector('#email').value = contactInfo.email;
             dialog.querySelector('#other').value = contactInfo.other;
             bar.querySelector('#privatebox').value = contactInfo.private;
-
             oldContactInfo = contactInfo;
-
             document.getElementById('delete_update_screen').append(dialog.cloneNode(true));
-
         }
         else {
             alert('Keine Berechtigung zum Bearbeiten oder Löschen!')
@@ -375,11 +333,7 @@ function openUpdateScreen(id) {
 }
 
 async function updateContact() {
-    console.log('oldContact: ' + oldContactInfo);
-
     const updatedContact = getContactData();
-    console.log('updatedContact: ' + updatedContact);
-
     let json = {
         title: updatedContact.title,
         gender: updatedContact.gender,
@@ -396,11 +350,9 @@ async function updateContact() {
         geoCoord: null,
         owner: oldContactInfo.owner
     }
-
     const valid = await contactAddressValid(updatedContact.street, updatedContact.house, updatedContact.city)
     if (valid) {
         if (activeUser.admin) {
-
             await fetch('/adviz/contacts/' + oldContactInfo.id, {
                 method: 'PUT',
                 headers: {
@@ -408,7 +360,6 @@ async function updateContact() {
                 },
                 body: JSON.stringify(json),
             }).then(response => {
-                console.log(response.status);
                 disableUpdateView();
                 enableAdminView();
             });
@@ -422,7 +373,6 @@ async function updateContact() {
                     },
                     body: JSON.stringify(json),
                 }).then(response => {
-                    console.log(response.status);
                     disableUpdateView();
                     enableAdminView();
                 });
@@ -449,7 +399,6 @@ function getContactData() {
     let email = updateDialog.querySelector('#email').value;
     let other = updateDialog.querySelector('#other').value;
     let private = updateDialog.querySelector('#privatebox').checked;
-
     let contact = new Contact(title, gender, firstname, lastName, street, house, postcode, city, country, email, other, private);
     return contact;
 }
@@ -459,7 +408,6 @@ async function deleteContact() {
         await fetch('/adviz/contacts/' + oldContactInfo.id, {
             method: 'DELETE'
         }).then(response => {
-            console.log(response.status);
             disableUpdateView();
             enableAdminView();
         });
@@ -469,7 +417,6 @@ async function deleteContact() {
             await fetch('/adviz/contacts/' + oldContactInfo.id, {
                 method: 'DELETE'
             }).then(response => {
-                console.log(response.status);
                 disableUpdateView();
                 enableAdminView();
             });     
@@ -482,13 +429,11 @@ async function deleteContact() {
 }
 
 function deleteContactById(id) {
-    console.log('deleting by id: '+id);
-    oldContactInfo = contact_Map.get(id);
+    oldContactInfo = contactMap.get(id);
     deleteContact();
 }
 
 function getContactDataNewContact() {
-
     let title = document.getElementById('title').value;
     let gender = document.getElementById('genders').value;
     let firstname = document.getElementById('prename').value;
@@ -513,7 +458,6 @@ async function showAddDialog() {
         await fetch('/adviz/users').then(response => {
             response.json().then(json => {
                 json.usernames.forEach(user => {
-                    console.log(user.userid);
                     let option = document.createElement('option');
                     option.text = user.userid;
                     userSelection.add(option);
@@ -521,7 +465,6 @@ async function showAddDialog() {
                 userSelection.style.display = 'initial';
             });
         });
-
     }
     else {
         userSelection.style.display = 'none';
@@ -563,7 +506,6 @@ async function addContact() {
         }
         postData('/adviz/contacts', json).then(data => {
             if (data.status == 201) {
-                console.log('new contact added');
             }
         });
         disableAddnew_dialog();
