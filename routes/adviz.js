@@ -4,17 +4,13 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 router.use(bodyParser.json());
-
 const User = require('../models/user');
 const Contacts = require('../models/contacts');
 const { Mongoose, isValidObjectId } = require('mongoose');
-//mongoose.set('useFindAndModify', false);
-
 
 router.get('/', (req, res) => {
     res.sendFile(path.resolve('./public/index.html'));
 });
-
 
 router.post('/login', (req, res) => {
     User.find({ userid: req.body.username })
@@ -38,7 +34,6 @@ router.post('/login', (req, res) => {
 
 //create new Contact
 router.post('/contacts', (req, res) => {
-    console.log(req.body);
     const contacts = new Contacts({
         _id: mongoose.Types.ObjectId(),
         title: req.body.title,
@@ -72,7 +67,6 @@ router.post('/contacts', (req, res) => {
 });
 
 //Read contacts
-//localhost:80/adviz/contacts?userId=Normalo
 router.get('/contacts', (req, res) => {
     const contactOwner = req.query.userId;
     Contacts.find({ owner: contactOwner })
@@ -181,19 +175,13 @@ router.get('/users', (req, res) => {
 });
 
 //get all Contacts
-//localhost:80/adviz/allContacts
-//body : admin: true/false name: "Admina/Normalo"
 router.post('/allContacts', (req, res) => {
     const name = req.body.name;
     const admin = req.body.admin;
     var findCondition = { $or: [{ owner: name, }, { private: false }] };
-
     if (name && admin == true) {
         findCondition = {}
     }
-
-    console.log(name, admin);
-
     Contacts.find(findCondition)
         .exec()
         .then(contacts => {
@@ -215,7 +203,6 @@ router.post('/allContacts', (req, res) => {
             });
         });
 });
-
 
 module.exports = router;
 
