@@ -26,7 +26,7 @@ function User(username, password, contacts, admin) {
 };
 
 function Contact(title, gender, firstName, lastName, street, house,
-    postcode, city, country, email, other, private, id = null, owner) {
+    postcode, city, country, email, other, private, id = null, owner, geoCoord) {
     this.title = title;
     this.gender = gender;
     this.firstName = firstName;
@@ -41,6 +41,7 @@ function Contact(title, gender, firstName, lastName, street, house,
     this.private = private;
     this.id = id;
     this.owner = owner;
+    this.geoCoord = geoCoord;
 }
 
 function generateUsers() {
@@ -100,16 +101,6 @@ async function login() {
             alert('Benutzername oder Passwort inkorrekt');
         }
     });
-}
-
-function getContactArrayFromJson(json) {
-    let contacts = []
-    json.forEach(contact => {
-        let contactFromJson = new Contact(contact.title, contact.gender, contact.firstName, contact.lastName,
-            contact.street, contact.house, contact.postcode, contact.city, contact.county, contact.email, contact.other, contact.private);
-        contacts.push(contactFromJson);
-    });
-    return contacts;
 }
 
 function disableUpdateView() {
@@ -184,7 +175,8 @@ function addContactToContactList(counter, element) {
             let contactAddedToMap = false;
             json.results.forEach(result => {
                 if (result.type == "Point Address" && !contactAddedToMap) {
-                    let newMarker = L.marker([parseFloat(result.position.lat), parseFloat(result.position.lon)]);
+                    let coords = [parseFloat(result.position.lat), parseFloat(result.position.lon)]
+                    let newMarker = L.marker(coords);
                     markers.set(parseInt(counter), newMarker);
                     newMarker.addTo(mymap).bindPopup('<b>' + element.firstName + " " + element.lastName + "</b><br>" + element.street + " " + element.house + ", " + element.postcode);
                     contactAddedToMap = true;
@@ -203,7 +195,7 @@ function removeAllMarkersFromMap() {
 
 function jsonToContact(json) {
     return new Contact(json.title, json.gender, json.firstname, json.lastname, json.street, json.house, json.postcode,
-        json.city, json.country, json.email, json.other, json.private, json._id, json.owner);
+        json.city, json.country, json.email, json.other, json.private, json._id, json.owner, json.geoCoord);
 }
 
 async function showMyContacts() {
@@ -334,6 +326,7 @@ function openUpdateScreen(id) {
 
 async function updateContact() {
     const updatedContact = getContactData();
+    let geoCoord = await getGeoCoordsForAddress(updatedContact);
     let json = {
         title: updatedContact.title,
         gender: updatedContact.gender,
@@ -347,7 +340,7 @@ async function updateContact() {
         email: updatedContact.email,
         other: updatedContact.other,
         private: updatedContact.private,
-        geoCoord: null,
+        geoCoord: geoCoord,
         owner: oldContactInfo.owner
     }
     const valid = await contactAddressValid(updatedContact.street, updatedContact.house, updatedContact.city)
@@ -471,11 +464,30 @@ async function showAddDialog() {
     }
 }
 
+async function getGeoCoordsForAddress(contact){
+    let geoCoord=[];
+    let call = "https://api.tomtom.com/search/2/geocode/" + contact.street + "%20" + contact.house + "%20" + contact.city + ".json?limit=1?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
+    const request = new Request(call);
+    await fetch(request)
+        .then(response => response.json())
+        .then(json => {
+            json.results.forEach(result => {
+                if (result.type == "Point Address") {
+                    geoCoord = [parseFloat(result.position.lat), parseFloat(result.position.lon)]
+                
+                };
+            });
+        });
+    return geoCoord;
+}
+
 async function addContact() {
     const newContact = getContactDataNewContact();
     let valid = false;
+    let geoCoord = await getGeoCoordsForAddress(newContact);
     try {
         valid = await contactAddressValid(newContact.street, newContact.house, newContact.city);
+
     } catch {
         valid = false;
     }
@@ -493,7 +505,7 @@ async function addContact() {
             email: newContact.email,
             other: newContact.other,
             private: newContact.private,
-            geoCoord: null,
+            geoCoord: geoCoord,
             owner: null
         };
         if (activeUser.admin == true) {
@@ -502,7 +514,6 @@ async function addContact() {
 
         } else {
             json.owner = activeUser.username;
-            activeUser.contacts.push(newContact);
         }
         postData('/adviz/contacts', json).then(data => {
             if (data.status == 201) {
@@ -520,10 +531,7 @@ function greeting() {
 }
 
 async function contactAddressValid(street, house, city) {
-    let methodstreet = street;
-    let methodhouse = house;
-    let methodcity = city;
-    let call = "https://api.tomtom.com/search/2/geocode/" + methodstreet + "%20" + methodhouse + "%20" + methodcity + ".json?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
+    let call = "https://api.tomtom.com/search/2/geocode/" + street + "%20" + house + "%20" + city + ".json?countrySet=DE&key=uPEVVjJEplE0v14jGXIeRVhKOKjfVFtJ"
     let valid = false;
     const response = await fetch(call);
     const json = await (response.json());
