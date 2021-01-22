@@ -303,8 +303,7 @@ function openUpdateScreen(id) {
                 bar.removeChild(bar.lastChild);
             }
             bar.append(barTemplateContent.cloneNode(true));
-            dialog.querySelector('#title').value = contactInfo.title;
-            dialog.querySelector('#genders').value = contactInfo.gender;
+            dialog.querySelector('#title').value = contactInfo.title;            
             dialog.querySelector('#prename').value = contactInfo.firstName;
             dialog.querySelector('#name').value = contactInfo.lastName;
             dialog.querySelector('#street').value = contactInfo.street;
@@ -317,6 +316,7 @@ function openUpdateScreen(id) {
             bar.querySelector('#privatebox').value = contactInfo.private;
             oldContactInfo = contactInfo;
             document.getElementById('delete_update_screen').append(dialog.cloneNode(true));
+            document.getElementById('genders').value = contactInfo.gender;
         }
         else {
             alert('Keine Berechtigung zum Bearbeiten oder Löschen!')
@@ -327,7 +327,6 @@ function openUpdateScreen(id) {
 async function updateContact() {
     const updatedContact = getContactData();
     let geoCoord = await getGeoCoordsForAddress(updatedContact);
-    console.log(geoCoord);
     let json = {
         title: updatedContact.title,
         gender: updatedContact.gender,
