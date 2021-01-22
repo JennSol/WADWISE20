@@ -102,18 +102,16 @@
   </template>
   <template id='bar-update-delete-template'>
     <label for="privateBox">Privat</label>
-    <input type="checkbox" id="privateBox" name="privateBox" checked>
+    <input type="checkbox" id="privatebox" name="privateBox" checked>
     <button type="submit" class="button" id="update_button" value="update" name="update_button">Bearbeiten</button>
     <button class="button" id="delete_button" value="delete" name="delete_button"
-      onclick="deleteContact()">Löschen</button>
+      onclick="deleteContact();return false;">Löschen</button>
   </template>
   <template id='bar-add-template'>
-    <label for="privateBox">Privat</label>
+    <label for="privateox">Privat</label>
     <input type="checkbox" id="privatebox" name="privatebox" checked>
     <button class="button" type="submit" id="add_button" value="add" name="add_button">Hinzufügen</button>
     <select id="users" name="users">
-      <option value="Normalo">Normalo</option>
-      <option value="Admina">Admina</option>
     </select>
   </template>
   <script type="text/javascript" src="/js/app.js"></script>

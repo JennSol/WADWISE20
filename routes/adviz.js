@@ -4,16 +4,13 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 router.use(bodyParser.json());
-
 const User = require('../models/user');
 const Contacts = require('../models/contacts');
 const { Mongoose, isValidObjectId } = require('mongoose');
 
-
 router.get('/', (req, res) => {
     res.sendFile(path.resolve('./public/index.html'));
 });
-
 
 router.post('/login', (req, res) => {
     User.find({ userid: req.body.username })
@@ -41,8 +38,8 @@ router.post('/contacts', (req, res) => {
         _id: mongoose.Types.ObjectId(),
         title: req.body.title,
         gender: req.body.gender,
-        firstName: req.body.firstname,
-        lastName: req.body.lastname,
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
         street: req.body.street,
         house: req.body.house,
         postcode: req.body.postcode,
@@ -70,7 +67,6 @@ router.post('/contacts', (req, res) => {
 });
 
 //Read contacts
-//localhost:80/adviz/contacts?userId=Normalo
 router.get('/contacts', (req, res) => {
     const contactOwner = req.query.userId;
     Contacts.find({ owner: contactOwner })
@@ -96,15 +92,14 @@ router.get('/contacts', (req, res) => {
 });
 
 //update contacts
-router.patch('/contacts/:id', (req, res) => {
+router.put('/contacts/:id', (req, res) => {
     const id = req.params.id;
-
     Contacts.findOneAndUpdate({ _id: id }, {
         $set: {
             title: req.body.title,
             gender: req.body.gender,
-            firstName: req.body.firstname,
-            lastName: req.body.lastname,
+            firstname: req.body.firstname,
+            lastname: req.body.lastname,
             street: req.body.street,
             house: req.body.house,
             postcode: req.body.postcode,
@@ -165,7 +160,7 @@ router.get('/users', (req, res) => {
             if (user) {
                 res.type('application/json');
                 res.status(200).json({
-                    Usernames: user
+                    usernames: user
                 });
             }
             else {
@@ -180,19 +175,13 @@ router.get('/users', (req, res) => {
 });
 
 //get all Contacts
-//localhost:80/adviz/allContacts
-//body : admin: true/false name: "Admina/Normalo"
-router.get('/allContacts', (req, res) => {
+router.post('/allContacts', (req, res) => {
     const name = req.body.name;
     const admin = req.body.admin;
     var findCondition = { $or: [{ owner: name, }, { private: false }] };
-
     if (name && admin == true) {
         findCondition = {}
     }
-
-    console.log(name, admin);
-
     Contacts.find(findCondition)
         .exec()
         .then(contacts => {
@@ -214,7 +203,6 @@ router.get('/allContacts', (req, res) => {
             });
         });
 });
-
 
 module.exports = router;
 
