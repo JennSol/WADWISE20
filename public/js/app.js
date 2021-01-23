@@ -1,3 +1,4 @@
+
 var mymap = L.map('map').setView([52.456009, 13.527571], 14);
 var contactMap = new Map();
 var activeUser;
@@ -49,10 +50,15 @@ function generateUsers() {
     let normalo = new User('Normalo', 'a', [schuster, mayer], false);
 }
 
+function activateConfetti(){
+    confetti.start(1000);
+}
+
 function loginSuccessful() {
     greeting();
     disableLoginView();
     enableAdminView();
+    activateConfetti();
 }
 
 function disableLoginView() {
