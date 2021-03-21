@@ -13,6 +13,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
+    console.log('angekommen');
     User.find({ userid: req.body.username })
         .exec()
         .then(user => {

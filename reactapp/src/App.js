@@ -1,18 +1,31 @@
 //https://blog.logrocket.com/how-react-hooks-can-replace-react-router/
 import React from "react";
-import { useRoutes, A } from "hookrouter";
+import { useRoutes } from "hookrouter";
 import "./styles.css";
 import routes from "./router";
 import LogIn from "./components/Login";
+import MainView from './components/MainView';
+
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 
 
 
 function App() {
-  const routeResult = useRoutes(routes);
   return (
+  <Switch>
+  <Route path="/" component={LogIn} exact />
+  <Route path="/mainView" component={MainView} />
+</Switch>
+  /* const routeResult = useRoutes(routes);
+ 
     <div className="App">
       {routeResult ||<LogIn/> }
-    </div>
+    </div> */
   );
 }
 export default App;

@@ -216,20 +216,7 @@ form {
 }
 
 
-#addnew_dialog{
-	display: none;
-}
-#delete_update_screen{
-	display: none;
-}
-#admin_view{	
-	display: none;
-}
 
 #admin_view h2{
 	width: 80%;
-}
-
-#users{
-	display: none;
 }
