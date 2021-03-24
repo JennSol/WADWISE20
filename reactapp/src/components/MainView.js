@@ -2,18 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { userLogOut } from '../actions/userActions';
+
 import { useDispatch } from 'react-redux';
 import { useHistory } from "react-router-dom";
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import ContactList from './ContactList';
+
+
 
 
 function MainView(props) {
-    const [Contact, setUserLoginData] = useState({
-        username: "",
-        password: ""
-    })
-    let history = useHistory();
-
     const dispatch = useDispatch();
+    const activeUser = useSelector(state => state.activeUser);
+   const allContacts = useSelector(state=> state.allContacts);
+    console.log('main', allContacts);
+    console.log('main', activeUser.name);
+      useEffect(() => {
+     
+
+        // Safe to add dispatch to the dependencies array
+    });
+    let history = useHistory();
+  
+
 
 
     const handleLogOut = (e) => {
@@ -40,18 +51,28 @@ function MainView(props) {
         <div className="page" id="admin_view">
             <div className="grid-container">
                 <div className="header">
-                    <a id="greeting"> Hello... </a>
+                    <a id="greeting"> Hallo {activeUser.name} </a>
                     <button type="submit" className="button" id="logout_button" value="logout" name="logout_button"
                         onClick={handleLogOut}>LogOut</button>
                 </div>
                 <div className="menu">
                     <div id="list">
-                        <ul id="contact_list" name="contact_list">
-                        </ul>
+                        <ContactList contacts={allContacts} />,
                     </div>
                 </div>
                 <div className="main">
                     <div id="map">
+                        <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
+                            <TileLayer
+                                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+                            <Marker position={[51.505, -0.09]}>
+                                <Popup>
+                                    A pretty CSS3 popup. <br /> Easily customizable.
+                                </Popup>
+                            </Marker>
+                        </MapContainer>
                     </div>
                 </div>
                 <div className="footer">

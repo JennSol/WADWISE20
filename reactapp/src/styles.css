@@ -220,3 +220,9 @@ form {
 #admin_view h2{
 	width: 80%;
 }
+
+.leaflet-container {
+	margin: auto;
+	height: 400px;
+	width: 90%;
+  }

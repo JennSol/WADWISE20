@@ -9,10 +9,10 @@ const initState = {
 const rootReducer = (state = initState, action) => {
     switch (action.type) {
         case 'USER_LOGIN': {
-            console.log('redux ')
+            console.log('userlogin',action);
             return {
                 ...state,
-                activeUser: action.userData
+                activeUser: action.data
             }
         }
         case 'USER_LOGOUT': {
@@ -21,9 +21,10 @@ const rootReducer = (state = initState, action) => {
         }
 
         case 'SAVE_ALL_CONTACTS': {
+            console.log('root....', action)
             return {
                 ...state,
-                allContacts: action.allContacts
+                allContacts: action.data
             }
         }
         case 'ADD_CONTACT': {

@@ -5,6 +5,7 @@ import "./styles.css";
 import routes from "./router";
 import LogIn from "./components/Login";
 import MainView from './components/MainView';
+import EditView from './components/EditView';
 
 import {
   BrowserRouter as Router,
@@ -20,6 +21,7 @@ function App() {
   <Switch>
   <Route path="/" component={LogIn} exact />
   <Route path="/mainView" component={MainView} />
+  <Route path="/editView" component={EditView} />
 </Switch>
   /* const routeResult = useRoutes(routes);
  

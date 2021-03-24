@@ -1,12 +1,16 @@
-export const userLogin = (userData) =>{
+export const userLogin = (userName, admin) =>{
+    let data = {
+        name: userName,
+        admin: admin
+
+     }
     return{
         type:'USER_LOGIN',
-        userData
+        data
     }
 }
-export const userLogOut = (userData) =>{
+export const userLogOut = () =>{
     return{
         type:'USER_LOGOUT',
-        userData
     }
 }
