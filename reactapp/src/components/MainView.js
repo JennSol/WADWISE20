@@ -12,8 +12,6 @@ function MainView(props) {
     const location = useLocation();
     let activeUser = location.state.activeUser;
     let allContacts = location.state.allContacts;
-    console.log('main', allContacts);
-    console.log(activeUser);
     let history = useHistory();
     const [markers, setMarkers] = useState({ 
          markers: []

@@ -1,5 +1,5 @@
 //https://gist.github.com/codeclassifiers/83659bb2a05234e81161aaa2f8339fa8#file-usestateexample-js
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useHistory } from "react-router-dom";
 
@@ -25,27 +25,26 @@ function Login(props) {
       "password": userLoginData.password
     };
     if (userLoginData.username && userLoginData.password) {
-      console.log(userLoginData);
 
       axios.post("http://localhost:80/adviz/login", payload)
         .then(res => {
           if (res.status == 200) {
             const activeUser = {
-              name: res.data.user.userid, admin: res.data.user.admin ,
+              name: res.data.user.userid, admin: res.data.user.admin,
             };
-                axios.post('http://localhost:80/adviz/allContacts', activeUser).then(response => {
-                history.push('/mainView', {activeUser:activeUser, allContacts: response.data.contacts});
+            axios.post('http://localhost:80/adviz/allContacts', activeUser).then(response => {
+              history.push('/mainView', { activeUser: activeUser, allContacts: response.data.contacts });
+            })
+              .catch(error => {
+                console.log(error)
               })
-                  .catch(error => {
-                      console.log(error)
-                  })
           }
           else if (res.status == 401) {
-              alert('Benutzername oder Passwort inkorrekt');
+            alert('Benutzername oder Passwort inkorrekt');
           }
-      })
+        })
     }
-   
+
   }
 
   return (

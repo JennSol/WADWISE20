@@ -39,7 +39,6 @@ function EditView(props) {
                 json.results.forEach(result => {
                     if (result.type == "Point Address") {
                         geoCoords = [parseFloat(result.position.lat), parseFloat(result.position.lon)]
-                        console.log(geoCoords, 'erstes');
                     };
                 });
             }).then(() => {
@@ -49,13 +48,10 @@ function EditView(props) {
                         geoCoord: geoCoords,
                         owner: contact.owner
                     }
-                    console.log(payload);
                     axios
                         .put("http://localhost:80/adviz/contacts/" + contact._id, payload)
                         .then(res => {
-                            console.log('update')
                             if (res.status == 204) {
-                                console.log('geklappt');
                                 axios.post('http://localhost:80/adviz/allContacts', activeUser).then(response => {
                                     history.push('/mainView', { activeUser: activeUser, allContacts: response.data.contacts });
                                 })
@@ -75,9 +71,7 @@ function EditView(props) {
         e.preventDefault();
         axios.delete("http://localhost:80/adviz/contacts/" + contact._id)
         .then(res => {
-            console.log('löschen')
             if (res.status == 204) {
-                console.log('gelöscht');
                 axios.post('http://localhost:80/adviz/allContacts', activeUser).then(response => {
                     history.push('/mainView', { activeUser: activeUser, allContacts: response.data.contacts });
                 });
