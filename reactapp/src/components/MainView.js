@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from "react-router-dom";
 import { useHistory } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer } from 'react-leaflet';
 import ContactList from './ContactList';
-
+import Map from './Map';
 
 
 
@@ -15,16 +15,17 @@ function MainView(props) {
     console.log('main', allContacts);
     console.log(activeUser);
     let history = useHistory();
+    const [markers, setMarkers] = useState({ 
+         markers: []
+    })
   
     const handleLogOut = (e) => {
         e.preventDefault();
-        console.log('logout');
         history.push('/');
     }
 
     const showAddDialog = (e) => {
         e.preventDefault();
-        console.log('addNewDialog');
         history.push('/add',{ activeUser: activeUser});
 
     }
@@ -39,7 +40,6 @@ function MainView(props) {
     const showMyContacts = (e) => {
         e.preventDefault();
         axios.get('http://localhost:80/adviz/contacts?userId=' + activeUser.name).then(response => {
-            console.log('response',response)
             history.push('/mainView', { activeUser: activeUser, allContacts: response.data.contacts });
         })
     }
@@ -60,17 +60,7 @@ function MainView(props) {
                 </div>
                 <div className="main">
                     <div id="map">
-                        <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
-                            <TileLayer
-                                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            />
-                            <Marker position={[51.505, -0.09]}>
-                                <Popup>
-                                    A pretty CSS3 popup. <br /> Easily customizable.
-                                </Popup>
-                            </Marker>
-                        </MapContainer>
+                       <Map contacts= {allContacts} />
                     </div>
                 </div>
                 <div className="footer">

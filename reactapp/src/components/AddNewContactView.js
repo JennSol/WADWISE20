@@ -27,7 +27,8 @@ console.log ('sieht man was ?');
         owner: activeUser.name
     })
    function Selection(props) {
-        if (props!= true) {
+       console.log('was kommt hier an ', props);
+        if (!props.admin) {
             console.log ('false')
             return null;
         }
