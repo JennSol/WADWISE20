@@ -7,7 +7,6 @@ import { useLocation } from "react-router-dom";
 
 
 function AddNewContactView(props) {
-console.log ('sieht man was ?');
     let history = useHistory();
     const location = useLocation();
     let activeUser = location.state.activeUser;
@@ -27,9 +26,7 @@ console.log ('sieht man was ?');
         owner: activeUser.name
     })
    function Selection(props) {
-       console.log('was kommt hier an ', props);
         if (!props.admin) {
-            console.log ('false')
             return null;
         }
         return (
@@ -62,7 +59,6 @@ console.log ('sieht man was ?');
                 json.results.forEach(result => {
                     if (result.type == "Point Address") {
                         geoCoords = [parseFloat(result.position.lat), parseFloat(result.position.lon)]
-                        console.log(geoCoords, 'erstes');
                     };
                 });
             }).then(() => {
@@ -71,12 +67,10 @@ console.log ('sieht man was ?');
                         ...contactData,
                         geoCoord: geoCoords,
                     }
-                    console.log(payload);
                     axios
                         .post("http://localhost:80/adviz/contacts",payload)
                         .then(res => {
                             if (res.status == 201) {
-                                console.log('added');
                                 axios.post('http://localhost:80/adviz/allContacts', activeUser).then(response => {
                                     history.push('/mainView', { activeUser: activeUser, allContacts: response.data.contacts });
                                 })
