@@ -180,7 +180,7 @@ router.post('/allContacts', (req, res) => {
     const name = req.body.name;
     const admin = req.body.admin;
     var findCondition = { $or: [{ owner: name, }, { private: false }] };
-    if (name && admin == true) {
+    if (admin == true) {
         findCondition = {}
     }
     Contacts.find(findCondition)

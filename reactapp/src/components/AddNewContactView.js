@@ -91,12 +91,6 @@ console.log ('sieht man was ?');
     }
 
 
-    const addContact = (e) => {
-
-        e.preventDefault();
-    }
-
-
     return (
         <div className="page" id="addNew_screen">
             <form id='form_dialog' className="form_dialog" onSubmit={handleSubmit}>

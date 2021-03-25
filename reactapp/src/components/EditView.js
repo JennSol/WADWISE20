@@ -73,6 +73,16 @@ function EditView(props) {
 
     const deleteContact = (e) => {
         e.preventDefault();
+        axios.delete("http://localhost:80/adviz/contacts/" + contact._id)
+        .then(res => {
+            console.log('löschen')
+            if (res.status == 204) {
+                console.log('gelöscht');
+                axios.post('http://localhost:80/adviz/allContacts', activeUser).then(response => {
+                    history.push('/mainView', { activeUser: activeUser, allContacts: response.data.contacts });
+                });
+            }
+        });
     }
 
 

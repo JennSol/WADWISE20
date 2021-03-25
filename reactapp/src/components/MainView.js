@@ -14,16 +14,8 @@ function MainView(props) {
     let allContacts = location.state.allContacts;
     console.log('main', allContacts);
     console.log(activeUser);
-      useEffect(() => {
-     
-       
-        // Safe to add dispatch to the dependencies array
-    });
     let history = useHistory();
   
-
-
-
     const handleLogOut = (e) => {
         e.preventDefault();
         console.log('logout');
@@ -39,10 +31,17 @@ function MainView(props) {
 
     const showAllContacts = (e) => {
         e.preventDefault();
+        axios.post('http://localhost:80/adviz/allContacts', activeUser).then(response => {
+            history.push('/mainView', { activeUser: activeUser, allContacts: response.data.contacts });
+        });
     }
 
     const showMyContacts = (e) => {
         e.preventDefault();
+        axios.get('http://localhost:80/adviz/contacts?userId=' + activeUser.name).then(response => {
+            console.log('response',response)
+            history.push('/mainView', { activeUser: activeUser, allContacts: response.data.contacts });
+        })
     }
 
 
@@ -56,7 +55,7 @@ function MainView(props) {
                 </div>
                 <div className="menu">
                     <div id="list">
-                        <ContactList contacts={allContacts} activeUser={activeUser} />,
+                        <ContactList contacts={allContacts} activeUser={activeUser} />
                     </div>
                 </div>
                 <div className="main">
