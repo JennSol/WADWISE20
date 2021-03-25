@@ -7,25 +7,27 @@ function Dialog(props) {
 
     console.log(props)
     const handleChange = (e) => {
-      
-        console.log(props);
-
-        props.setContactData(prevState => ({
+        console.log(e);
+        let value =e.target.value;
+        if(e.target.type=== 'checkbox'){
+             value= e.target.checked
+        }
+        props.setContactData(prevState => (
+            {
             ...prevState,
-            [e.target.name]: e.target.value
+            [e.target.name]: value
         }))
     }
     return (
-        <div className="page" id="delete_update_screen">
-            <form id='form_dialog' className="form_dialog" onSubmit={props.handleSubmit}>
+<div>
                 <label > Titel
                 <input type="text" id="title" name="title" value={props.contactData.title} onChange={handleChange} /> </label>
                 <label> Geschlecht
-                <select id="genders" name="genders" value={props.contactData.gender} onChange={handleChange}>
-                    <option value="none">keine Angabe</option>
-                    <option value="diverse">divers</option>
-                    <option value="male">männlich</option>
-                    <option value="female">weiblich</option>
+                <select id="gender" name="gender" value={props.contactData.gender} onChange={handleChange}>
+                    <option  value="none">keine Angabe</option>
+                    <option  value="diverse">divers</option>
+                    <option  value="male">männlich</option>
+                    <option  value="female">weiblich</option>
                 </select></label>
                 <label >Vorname*
                 <input type="text" id="prename" name="firstname" value={props.contactData.firstname} onChange={handleChange} required /></label>
@@ -47,9 +49,8 @@ function Dialog(props) {
                 <input type="text" id="other" name="other" value={props.contactData.other} onChange={handleChange} /></label>
                 <div id="bar" className="bar">
                     <label> Privat
-                    <input type="checkbox" id="privatebox" name="privateBox" checked  value={props.contactData.private} onChange={handleChange}/></label>
-                </div>
-            </form>
+                    <input type="checkbox"  id="privatebox" name="private"  checked={props.contactData.private} onChange={handleChange}/></label>
+                    </div>
         </div>
     );
 }

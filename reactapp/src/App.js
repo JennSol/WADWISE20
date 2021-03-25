@@ -6,7 +6,7 @@ import routes from "./router";
 import LogIn from "./components/Login";
 import MainView from './components/MainView';
 import EditView from './components/EditView';
-
+import AddNewContactView from "./components/AddNewContactView";
 import {
   BrowserRouter as Router,
   Switch,
@@ -16,12 +16,14 @@ import {
 
 
 
+
 function App() {
   return (
   <Switch>
   <Route path="/" component={LogIn} exact />
   <Route path="/mainView" component={MainView} />
   <Route path="/editView" component={EditView} />
+  <Route path="/add" component={AddNewContactView} />
 </Switch>
   /* const routeResult = useRoutes(routes);
  

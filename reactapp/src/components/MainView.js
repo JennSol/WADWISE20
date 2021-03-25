@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import axios from 'axios';
-import { userLogOut } from '../actions/userActions';
-
-import { useDispatch } from 'react-redux';
+import { useLocation } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import ContactList from './ContactList';
@@ -12,14 +9,14 @@ import ContactList from './ContactList';
 
 
 function MainView(props) {
-    const dispatch = useDispatch();
-    const activeUser = useSelector(state => state.activeUser);
-   const allContacts = useSelector(state=> state.allContacts);
+    const location = useLocation();
+    let activeUser = location.state.activeUser;
+    let allContacts = location.state.allContacts;
     console.log('main', allContacts);
-    console.log('main', activeUser.name);
+    console.log(activeUser);
       useEffect(() => {
      
-
+       
         // Safe to add dispatch to the dependencies array
     });
     let history = useHistory();
@@ -29,13 +26,15 @@ function MainView(props) {
 
     const handleLogOut = (e) => {
         e.preventDefault();
-        dispatch(userLogOut());
         console.log('logout');
         history.push('/');
     }
 
     const showAddDialog = (e) => {
         e.preventDefault();
+        console.log('addNewDialog');
+        history.push('/add',{ activeUser: activeUser});
+
     }
 
     const showAllContacts = (e) => {
@@ -57,7 +56,7 @@ function MainView(props) {
                 </div>
                 <div className="menu">
                     <div id="list">
-                        <ContactList contacts={allContacts} />,
+                        <ContactList contacts={allContacts} activeUser={activeUser} />,
                     </div>
                 </div>
                 <div className="main">

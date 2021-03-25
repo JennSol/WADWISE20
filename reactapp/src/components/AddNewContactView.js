@@ -1,31 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useHistory } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import Dialog from './Dialog';
 import { useLocation } from "react-router-dom";
 
 
 
-function EditView(props) {
+function AddNewContactView(props) {
+console.log ('sieht man was ?');
     let history = useHistory();
     const location = useLocation();
-    let contact = location.state.editContact;
     let activeUser = location.state.activeUser;
     const [contactData, setContactData] = useState({
-        title: contact.title,
-        gender: contact.gender,
-        firstname: contact.firstname,
-        lastname: contact.lastname,
-        street: contact.street,
-        house: contact.house,
-        postcode: contact.postcode,
-        city: contact.city,
-        country: contact.country,
-        email: contact.email,
-        other: contact.other,
-        private: contact.private,
+        title: '',
+        gender: '',
+        firstname: '',
+        lastname: '',
+        street: '',
+        house: '',
+        postcode: '',
+        city: '',
+        country: '',
+        email: '',
+        other: '',
+        private: true,
+        owner: activeUser.name
     })
+   function Selection(props) {
+        if (props!= true) {
+            console.log ('false')
+            return null;
+        }
+        return (
+            <select id="users" name="owner" value= {contactData.owner} onChange={handleChange}>
+                <option value="Normalo">Normalo</option>
+                <option value="Admina">Admina</option>
+            </select>
+        );
+    } 
+    
+        
+
+    const handleChange = (e) => {
+        setContactData(prevState => ({
+            ...prevState,
+            [e.target.name]: e.target.value
+        }))
+    }
+
 
     let geoCoords = [];
     const handleSubmit = (e) => {
@@ -47,15 +69,13 @@ function EditView(props) {
                     payload = {
                         ...contactData,
                         geoCoord: geoCoords,
-                        owner: contact.owner
                     }
                     console.log(payload);
                     axios
-                        .put("http://localhost:80/adviz/contacts/" + contact._id, payload)
+                        .post("http://localhost:80/adviz/contacts",payload)
                         .then(res => {
-                            console.log('update')
-                            if (res.status == 204) {
-                                console.log('geklappt');
+                            if (res.status == 201) {
+                                console.log('added');
                                 axios.post('http://localhost:80/adviz/allContacts', activeUser).then(response => {
                                     history.push('/mainView', { activeUser: activeUser, allContacts: response.data.contacts });
                                 })
@@ -71,26 +91,24 @@ function EditView(props) {
     }
 
 
-    const deleteContact = (e) => {
+    const addContact = (e) => {
+
         e.preventDefault();
     }
 
 
-
-
     return (
-        <div className="page" id="delete_update_screen">
-        <form id='form_dialog' className="form_dialog" onSubmit={handleSubmit}>
-            <Dialog activeUser={activeUser} contactData={contactData} setContactData={setContactData} handleSubmit={handleSubmit} />
-            <div id="bar" className="bar">
-                <button type="submit" className="button" id="update_button" value="update" name="update_button">Bearbeiten</button>
-                <button className="button" id="delete_button" value="delete" name="delete_button"
-                    onClick={deleteContact}>Löschen</button>
-            </div>
+        <div className="page" id="addNew_screen">
+            <form id='form_dialog' className="form_dialog" onSubmit={handleSubmit}>
+                <Dialog activeUser={activeUser} contactData={contactData} setContactData={setContactData} />
+                <div id="bar" className="bar">
+                <Selection admin={activeUser.admin} />
+                    <button type='submit' className="button" >Hinzufügen</button>
+                </div>
             </form>
         </div>
     );
 }
 
 
-export default EditView;
+export default AddNewContactView;
