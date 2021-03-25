@@ -9,10 +9,11 @@ const Contacts = require('../models/contacts');
 const { Mongoose, isValidObjectId } = require('mongoose');
 
 router.get('/', (req, res) => {
-    res.sendFile(path.resolve('./public/index.html'));
+    res.sendFile(path.resolve('../reactapp/public/index.html'));
 });
 
 router.post('/login', (req, res) => {
+    console.log('angekommen');
     User.find({ userid: req.body.username })
         .exec()
         .then(user => {
@@ -179,7 +180,7 @@ router.post('/allContacts', (req, res) => {
     const name = req.body.name;
     const admin = req.body.admin;
     var findCondition = { $or: [{ owner: name, }, { private: false }] };
-    if (name && admin == true) {
+    if (admin == true) {
         findCondition = {}
     }
     Contacts.find(findCondition)
